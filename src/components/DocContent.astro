@@ -1,0 +1,16 @@
+---
+import MarkdownContent from '@astrojs/starlight/components/MarkdownContent.astro';
+import CollectionCatalog from './CollectionCatalog.astro';
+import ProductDetails from './ProductDetails.astro';
+
+const { entry } = Astro.locals.starlightRoute;
+const collectionId = entry.id.startsWith('collections/')
+  ? entry.id.slice('collections/'.length)
+  : undefined;
+---
+
+<MarkdownContent>
+  {entry.id.startsWith('products/') && <ProductDetails data={entry.data} />}
+  <slot />
+  {collectionId && <CollectionCatalog {collectionId} />}
+</MarkdownContent>

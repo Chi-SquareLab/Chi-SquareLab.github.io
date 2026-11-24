@@ -1,0 +1,10 @@
+@layer theme, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+.batch-plot { border: 1px solid var(--sl-color-gray-5); border-radius: .75rem; padding: 1.2rem; }
+.batch-plot label, .batch-plot input, .batch-plot svg { display: block; margin-block: .8rem; }
+.batch-plot input { width: min(100%, 22rem); accent-color: var(--sl-color-text-accent); }
+.batch-plot svg { width: min(100%, 25rem); }
+.batch-plot text { fill: var(--sl-color-text); font-size: 14px; }
+.batch-plot rect { fill: var(--sl-color-text-accent); }

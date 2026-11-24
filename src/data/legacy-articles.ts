@@ -1,4 +1,63 @@
-window.TUTORIALS = {
+export interface LegacyArticleData {
+  readonly title: string;
+  readonly intro: string;
+  readonly sections: readonly {
+    readonly title: string;
+    readonly text: string;
+    readonly code?: string;
+  }[];
+  readonly sources: readonly {
+    readonly label: string;
+    readonly url: string;
+  }[];
+}
+
+// Ported from app.js and tutorials.js. Pages and notebooks use the same records.
+export const quickstartCode = `from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from tabpfn import TabPFNClassifier
+
+X, y = load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, stratify=y, random_state=42
+)
+
+model = TabPFNClassifier()
+model.fit(X_train, y_train)
+probabilities = model.predict_proba(X_test)`;
+
+export const legacyArticles = {
+  quickstart: {
+    title: "Quickstart",
+    intro:
+      "Use TabPFN to predict iris species from four flower measurements. This example walks through a complete classification call on a dataset included with scikit-learn.",
+    sections: [
+      {
+        title: "Prepare the environment",
+        text: "Install tabpfn==9.0.0 and scikit-learn in a Python environment compatible with the package. The first model load needs access to the corresponding weights; follow the TabPFN documentation for licensing, credentials and hardware requirements.",
+      },
+      {
+        title: "Fit and predict",
+        text: "The stratified split preserves class representation. Only the training features and labels are passed to fit; each output row from predict_proba follows the ordering in model.classes_.",
+        code: quickstartCode,
+      },
+      {
+        title: "Inspect the output",
+        text: "Check the probability matrix against the held-out rows. A probability vector describes one prediction; assessing calibration requires more than inspecting a single vector.",
+        code: "print(model.classes_)\nprint(probabilities.shape)\nprint(probabilities[0])",
+      },
+    ],
+    sources: [
+      {
+        label: "TabPFN · official implementation",
+        url: "https://github.com/PriorLabs/TabPFN",
+      },
+      {
+        label: "scikit-learn · Iris dataset",
+        url: "https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_iris.html",
+      },
+    ],
+  },
   domain: {
     title: "Evaluating Domain Adaptation on Tabular Data",
     intro:
@@ -211,4 +270,6 @@ print(f"Mean batch MAE, median: {np.mean(baseline_errors):.3f}")
       },
     ],
   },
-};
+} satisfies Record<string, LegacyArticleData>;
+
+export type LegacyArticleId = keyof typeof legacyArticles;

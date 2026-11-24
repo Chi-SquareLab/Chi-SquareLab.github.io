@@ -1,0 +1,61 @@
+---
+import { getCollection } from 'astro:content';
+import { Icon } from '@astrojs/starlight/components';
+
+interface Props {
+  collectionId: string;
+}
+
+const { collectionId } = Astro.props;
+const products = await getCollection('docs', ({ id, data }) =>
+  id.startsWith('products/') &&
+  (import.meta.env.MODE !== 'production' || !data.draft) &&
+  data.collections?.includes(collectionId) === true
+);
+products.sort((a, b) => a.data.title.localeCompare(b.data.title, 'en') || a.id.localeCompare(b.id));
+---
+
+<section class="tabula-catalog not-content" aria-labelledby="tabula-catalog-title">
+  <div class="tabula-section-heading">
+    <div>
+      <h2 id="tabula-catalog-title">Products</h2>
+      <p>Open a product to see how to get it and follow its tutorial.</p>
+    </div>
+    <span class="tabula-count">{products.length} {products.length === 1 ? 'product' : 'products'}</span>
+  </div>
+
+  {products.length ? (
+    <ul class="tabula-card-grid tabula-card-grid--products" role="list">
+      {products.map(({ id, data }) => {
+        const labelId = `card-${id.replaceAll('/', '-')}`;
+        const tagsId = data.demo || data.status ? `${labelId}-tags` : undefined;
+        const descriptionId = data.description ? `${labelId}-description` : undefined;
+        const detailsIds = [tagsId, descriptionId].filter(Boolean).join(' ') || undefined;
+        return (
+          <li>
+            <a class="tabula-card" href={`/${id}/`} aria-labelledby={labelId} aria-describedby={detailsIds}>
+              <div class="tabula-card__body">
+                {tagsId && (
+                  <div class="tabula-tags" id={tagsId}>
+                    {data.demo && <span class="tabula-tag" data-tone="demo">Demo</span>}
+                    {data.status && <span class="tabula-tag" data-tone={data.status.toLowerCase()}>{data.status}</span>}
+                  </div>
+                )}
+                <h3 id={labelId}>{data.title}</h3>
+                {data.description && <p id={descriptionId}>{data.description}</p>}
+                <span class="tabula-card__link" aria-hidden="true">
+                  View product <Icon name="right-arrow" class="rtl:flip" />
+                </span>
+              </div>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  ) : (
+    <div class="tabula-empty">
+      <p>No products are listed in this collection yet.</p>
+      <a href="/#collections">Browse all collections</a>
+    </div>
+  )}
+</section>

@@ -1,33 +1,51 @@
 # Tabula
 
-Tabula is the tutorial site for [statlabx.github.io](https://statlabx.github.io/). The current version is a static HTML, CSS, and JavaScript site. It runs in the browser without a package install, build step, model weights, or backend.
+Tabula is a static research product catalog built with Astro, Starlight and MDX. Readers choose a collection, open a product, and follow its **Tutorial on the product page**. The sample catalog contains two working Python scripts for instructional use, not published research packages or trained models.
 
 ## Run locally
 
-From the repository root, start a local server with Python 3:
+Use Node.js 22.23.4+ and npm. Python is only needed to run the downloadable demos or notebooks.
 
 ```sh
-python -m http.server 4173 --bind 127.0.0.1
+npm ci
+npm run dev
 ```
 
-Open <http://127.0.0.1:4173/>. Refresh after editing a file; stop the server with `Ctrl+C`. Python serves the files only. Readers run downloaded notebooks in their own Python environments using the setup instructions in each tutorial.
+Open the URL printed by Astro. To check the catalog, generate the production pages and preview the search index:
+
+```sh
+npm run build
+npm run preview
+```
+
+## Try the demos
+
+| Product | Collections | Task |
+| --- | --- | --- |
+| [Cooling Context](src/content/docs/products/cooling-context.mdx) | Domain TFMs | Prepare labeled context and unlabeled query rows from cooling measurements. |
+| [Batch Error](src/content/docs/products/batch-error.mdx) | Statistical Tasks, Scientific Tasks | Compute a separate mean absolute error for each experimental batch, then average batches equally. |
+
+In the preview, open `/collections/statistics/` or `/collections/science/`. Both list `/products/batch-error/`. Its `#tutorial` anchor opens the first-use instructions. The two CLI tools in [public/demos](public/demos/) use only the Python standard library; follow the input and command shown on each product page.
+
+## Author a product
+
+1. Check the [product protocol](docs/product-protocol.md). Copy the [English template](docs/templates/product.mdx) to `src/content/docs/products/<stable-id>.mdx`. Keep the filename when updating the name or release.
+2. Set `collections` to every applicable [collection ID](src/content/docs/collections/) (the filename without `.mdx`). Membership is recorded only here. Fill in the maintainer, source, release, delivery format and access terms. Set `demo: true` for an instructional demo.
+3. In `## Tutorial`, walk through access, a concrete input, the operation and its expected output. Run the example before submitting it. Link supplementary downloads from the same page.
+4. Run `npm run check:catalog` to check membership, metadata, local source paths and tutorial presence. Run `npm run build`, then check the rendered page from each listed collection. After changing either included demo, run `python scripts/check-demos.py` to compare the shipped script’s output with its tutorial.
+
+To add a fourth collection, add its English introduction in `src/content/docs/collections/` using an existing entry as a pattern, then add its ID to the relevant products. The sidebar and product lists derive from the content collection.
 
 ## Where to make changes
 
-| File | What it controls |
+| Location | Responsibility |
 | --- | --- |
-| [index.html](index.html) | Page shell, top navigation, sidebar links, and search dialog. |
-| [app.js](app.js) | Hash routing, page titles, search, homepage cards, Quickstart, model notes, reading list, and notebook downloads. |
-| [tutorials.js](tutorials.js) | Collection tutorials: titles, prose, ordered Python examples, and sources. Both the article and its notebook use these records. |
-| [style.css](style.css) | Layout, typography, navigation states, and responsive styles. |
-| [assets/](assets/) | Local illustrations and the vendored DOMPurify script with its license. |
+| [src/content/docs](src/content/docs/) | Homepage, collection definitions, product pages, Quickstart and reference pages. |
+| [src/components](src/components/) | Navigation, collection cards, product details and reusable article markup. |
+| [src/content.config.ts](src/content.config.ts), [scripts/check-catalog.mjs](scripts/check-catalog.mjs) | Starlight metadata schema and cross-file catalog checks. |
+| [src/data](src/data/), [src/pages/downloads](src/pages/downloads/) | Shared source for the original method examples and their downloadable Python notebooks. |
+| [public](public/), [src/styles](src/styles/) | Files served unchanged (including Python demos and diagrams), and site styles. |
 
-To revise a collection example, edit its section in `tutorials.js`, open the article, and download its notebook to check the cell order and sources. To add a collection, also register its route and card in `app.js` and add its sidebar link in `index.html`. Preserve existing hash links such as `#domain`, `#statistics`, and `#science` when renaming labels.
+## Deploy to GitHub Pages
 
-## Check and publish
-
-1. Run `node --check app.js` and `node --check tutorials.js` if Node.js is installed.
-2. In the local preview, follow each top navigation link, open a collection from search, reload a direct hash URL, and download a notebook. Check the sidebar on a narrow viewport after changing navigation or CSS.
-3. Push the reviewed changes to `main`. The prototype is served from the repository root by GitHub Pages. Keep `index.html`, `style.css`, both scripts, and `assets/` in their relative locations. Check the [deployment run](https://github.com/StatLabX/statlabx.github.io/actions) and the [published site](https://statlabx.github.io/) after pushing.
-
-The [architecture notes](docs/architecture.md) describe the planned Astro and Starlight migration; that toolchain is not needed to work on this version. See the [project charter](AGENTS.md) for content provenance and maintenance decisions.
+In **Settings → Pages → Build and deployment**, select **GitHub Actions** when switching from the old root-site deployment. The [Pages workflow](.github/workflows/pages.yml) builds on `main` and deploys **`dist/`** to [statlabx.github.io](https://statlabx.github.io/). No application server is required. Search runs against the Pagefind index created at build time. The [architecture notes](docs/architecture.md) describe the content boundaries; the [project charter](AGENTS.md) records provenance and maintenance decisions.

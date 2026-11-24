@@ -1,0 +1,69 @@
+---
+title: "Batch Error"
+description: "Instructional demo for researchers: compute mean absolute error for each batch of supplied observations and predictions, and average the batch errors equally."
+collections: [statistics, science]
+maintainer: "Tabula documentation"
+source: "/demos/batch-error.py"
+delivery: ["Standalone Python script"]
+status: Preview
+release: "Instructional example"
+access: "Public download; no sign-in required"
+demo: true
+---
+
+import BatchErrorPlot from '../../../components/BatchErrorPlot';
+
+Batch Error is an instructional demo for researchers comparing predictions with measured responses from experimental batches. It reports mean absolute error (MAE) within each batch and macro MAE, which gives each batch equal weight in the overall summary. In a reaction experiment, use the per-batch results to decide which batches to inspect for discrepancies between predicted and measured yields.
+
+## Tutorial
+
+### Get access
+
+<a href="/demos/batch-error.py" download="batch-error.py">Download batch-error.py</a>
+
+Save the script in a working folder. It uses the Python standard library; use Python 3.10 or later.
+
+### Prepare an input
+
+Save the following synthetic reaction yields as `observations.csv` beside the script. Keep the header exactly as shown.
+
+```csv
+batch,observed,predicted
+A,10,10
+A,12,14
+B,7,11
+```
+
+Each row pairs a measured yield and a predicted yield for the same observation. Enter both as numbers in the same units (percent in this example). Use a nonempty label for each batch. Labels are case sensitive; the script ignores spaces around them.
+
+### Run the task
+
+Open a terminal in the working folder and run:
+
+```sh
+python batch-error.py observations.csv
+```
+
+### Interpret the output
+
+The script prints JSON:
+
+```json
+{
+  "per_batch": {
+    "A": {
+      "count": 2,
+      "mae": 1.0
+    },
+    "B": {
+      "count": 1,
+      "mae": 4.0
+    }
+  },
+  "macro_mae": 2.5
+}
+```
+
+For batch A, the absolute errors of 0 and 2 percentage points average to 1. Batch B has one error of 4 percentage points. The macro MAE is `(1 + 4) / 2 = 2.5` percentage points, because each batch contributes one MAE even though the batch sizes differ. Batch B is the first to inspect in this example; use `count` to see how many observations support each result before deciding whether to repeat a measurement.
+
+<BatchErrorPlot client:visible />

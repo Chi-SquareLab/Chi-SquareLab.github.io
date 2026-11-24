@@ -1,0 +1,66 @@
+---
+import AnchorHeading from '@astrojs/starlight/components/AnchorHeading.astro';
+import { Code, LinkButton } from '@astrojs/starlight/components';
+import { legacyArticles, type LegacyArticleData, type LegacyArticleId } from '../data/legacy-articles.ts';
+
+interface Props {
+  id: LegacyArticleId;
+}
+
+const { id } = Astro.props;
+const article: LegacyArticleData = legacyArticles[id];
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const filename = `tabula-${id}.ipynb`;
+// Keep the section fragments used by the prototype's links.
+let codeCell = 0;
+const sections = article.sections.map((section, index) => ({
+  ...section,
+  anchor: `s${index}`,
+  cell: section.code ? ++codeCell : undefined,
+}));
+---
+
+{id !== 'quickstart' && <p><strong>Worked method example · Simulated data.</strong> This walkthrough is part of the reference library and is outside the product catalog.</p>}
+<p>{article.intro}</p>
+<LinkButton href={`${base}/downloads/${id}.ipynb`} download={filename} icon="download" variant="secondary">
+  Download notebook (.ipynb)
+</LinkButton>
+
+{/* Astro collects Markdown headings at compile time. These shared records supply their own TOC. */}
+<nav class="example-toc" aria-label="On this page">
+  <p>On this page</p>
+  <ul>
+    {sections.map(({ anchor, title }) => <li><a href={`#${anchor}`}>{title}</a></li>)}
+    <li><a href="#sources">Sources</a></li>
+  </ul>
+</nav>
+
+{
+  sections.map(({ anchor, title, text, code, cell }, index) => (
+    <>
+      <AnchorHeading level={2} id={anchor}>{title}</AnchorHeading>
+      <p>{text}</p>
+      {index === 0 && <slot name="setup" />}
+      {code && <Code lang="python" code={code} title={`In [${cell}] · Python`} />}
+    </>
+  ))
+}
+
+<AnchorHeading level={2} id="sources">Sources</AnchorHeading>
+<ul>
+  {article.sources.map(({ label, url }) => <li><a href={url}>{label}</a></li>)}
+</ul>
+
+<style>
+  .example-toc {
+    border-inline-start: 2px solid var(--sl-color-hairline);
+    padding-inline-start: 1rem;
+  }
+  .example-toc p {
+    color: var(--sl-color-white);
+    font-weight: 600;
+  }
+  .example-toc ul {
+    margin-top: .375rem;
+  }
+</style>

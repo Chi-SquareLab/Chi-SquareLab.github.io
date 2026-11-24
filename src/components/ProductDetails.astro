@@ -1,0 +1,81 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { Icon } from '@astrojs/starlight/components';
+
+interface Props {
+  data: CollectionEntry<'docs'>['data'];
+}
+
+const { data } = Astro.props;
+const memberIds = new Set(data.collections?.map((id) => `collections/${id}`));
+const collections = await getCollection('docs', (entry) =>
+  memberIds.has(entry.id) && (import.meta.env.MODE !== 'production' || !entry.data.draft)
+);
+collections.sort((a, b) =>
+  (a.data.sidebar.order ?? Infinity) - (b.data.sidebar.order ?? Infinity) || a.id.localeCompare(b.id)
+);
+
+function getSourceLink(value?: string) {
+  if (!value) return undefined;
+  try {
+    const url = new URL(value, Astro.url);
+    if (value.startsWith('/') && !value.startsWith('//') && url.origin === Astro.url.origin) {
+      return {
+        href: url.pathname + url.search + url.hash,
+        label: url.pathname.toLowerCase().endsWith('.ipynb') ? 'Download notebook' : 'Download source',
+        icon: 'download' as const,
+        download: true,
+      };
+    }
+    if (/^https?:\/\//i.test(value)) {
+      return { href: url.href, label: 'Open source', icon: 'external' as const };
+    }
+  } catch {
+    return undefined;
+  }
+}
+
+const source = getSourceLink(data.source?.trim());
+---
+
+<section class="tabula-product not-content" aria-labelledby="tabula-product-title">
+  <div class="tabula-product__heading">
+    <h2 id="tabula-product-title">Product details</h2>
+    <div class="tabula-tags">
+      {data.demo && <span class="tabula-tag" data-tone="demo">Demo</span>}
+      {data.status && (
+        <span class="tabula-tag" data-tone={data.status.toLowerCase()}>
+          <span class="sr-only">Status: </span>{data.status}
+        </span>
+      )}
+    </div>
+  </div>
+
+  <dl class="tabula-product__facts">
+    {data.maintainer && <div><dt>Maintainer</dt><dd>{data.maintainer}</dd></div>}
+    {data.release && <div><dt>Release</dt><dd>{data.release}</dd></div>}
+    {data.delivery?.length ? <div><dt>Delivery</dt><dd>{data.delivery.join(', ')}</dd></div> : null}
+    {data.access && <div><dt>Access</dt><dd>{data.access}</dd></div>}
+    {collections.length > 0 && (
+      <div class="tabula-product__memberships">
+        <dt>Collections</dt>
+        <dd>
+          <ul role="list">
+            {collections.map(({ id, data }) => <li><a href={`/${id}/`}>{data.title}</a></li>)}
+          </ul>
+        </dd>
+      </div>
+    )}
+  </dl>
+
+  <div class="tabula-product__actions">
+    {source && (
+      <a class="tabula-button tabula-button--primary" href={source.href} download={source.download}>
+        {source.label} <Icon name={source.icon} />
+      </a>
+    )}
+    <a class="tabula-button tabula-button--secondary" href="#tutorial">
+      Go to tutorial <Icon name="down-arrow" />
+    </a>
+  </div>
+</section>

@@ -19,7 +19,7 @@
 ## 4. 材料與溯源
 
 - **observed**：委託提供的截圖展示多視窗深色介面；採用委託文字指定的淺色文件版面。本站品牌為設計識別，並未聲稱任何機構背書。
-- **observed**：`tutorials.js` 包含帶種子的合成資料、切分邏輯、評估方法及外部來源。`app.js` 的 Quickstart 使用 scikit-learn 提供的 Iris 資料。圖為向量示意，不呈現實測結果。
+- **observed**：`src/data/legacy-articles.ts` 保留帶種子的合成資料、切分邏輯、評估方法及外部來源。其中的 Quickstart 使用 scikit-learn 提供的 Iris 資料。圖為向量示意，不呈現實測結果。
 - **unknown**：正式團隊論文、程式庫、資料版本及其授權。在取得可核對的來源前，例題只能以示範教學的形式發佈。
 
 ## 5. 最小判別實驗
@@ -36,11 +36,11 @@
 
 **執行與部署**：網站採純靜態建置，所有執行期功能均在瀏覽器端完成，無需任何後端服務。透過 GitHub Actions 建置靜態產物並部署至 GitHub Pages。
 
-### 6.2 現有靜態原型（observed）
+### 6.2 現行 Astro 示範站（observed）
 
-**預覽與部署**：在專案根目錄執行 `python -m http.server 4173 --bind 127.0.0.1` 後開啟 http://127.0.0.1:4173/ 。瀏覽網站無須編譯前端、載入遠端字型或安裝模型套件。部署至靜態網站空間時，保留 `index.html`、`style.css`、`app.js`、`tutorials.js` 與整個 `assets/` 目錄的相對位置。三個教學入口可分別透過 `#domain`、`#statistics`、`#science` 直接連結。
+**預覽與部署**：使用 Node.js 22.23.4 以上版本，從根目錄執行 `npm ci`、`npm run dev`。`npm run build` 檢查產品資料並產生 `dist/`，`npm run preview` 可檢查成品與搜尋。Pages 工作流程只發布 `dist/`，首次切換需在儲存庫 Pages 設定選 GitHub Actions。
 
-**內容維護**：`app.js` 管理首頁、模型架構筆記、Quickstart、閱讀清單、搜尋與導覽。修改教學標題、段落、Python 程式或文獻時，編輯 `tutorials.js`；教學頁與可下載的 `.ipynb` 共用這份來源。`assets/*.svg` 存放向量示意圖；`assets/vendor/` 保存 DOMPurify 3.5.0 與授權。
+**內容維護**：`src/content/docs/` 是英文頁面的來源；`src/data/legacy-articles.ts` 供 Quickstart、參考案例及對應的 Notebook 共同使用。`public/assets/` 存放向量示意圖，`public/demos/` 存放可下載的教學腳本。
 
 **範例執行**：下載 Notebook 後在自己的 Python 環境執行。TabPFN 9.0.0 需要相應權重，首次使用請遵照上游的存取與授權程序。資料種子已固定；運算核心、套件與權重雜湊尚未全部固定，數值可能隨環境而異。
 
@@ -48,19 +48,23 @@
 
 | 項目 | 證據 | 性質 |
 | --- | --- | --- |
-| 三個研究方向及入口 | 委託、`index.html`、`app.js` | observed：介面範圍 |
-| 跨域、區間、批次教學 | `tutorials.js` 各章節、程式與 sources | derived：合成案例設計 |
-| 模型資訊流 | `assets/context.svg` 與 Model architecture | schematic：輸入輸出，非特定 checkpoint 層級架構 |
+| 三個研究方向及入口 | 委託、`src/content/docs/collections/` | observed：介面範圍 |
+| 跨域、區間、批次教學 | `src/data/legacy-articles.ts` 各章節、程式與 sources | derived：合成案例設計 |
+| 模型資訊流 | `public/assets/context.svg` 與 Model architecture | schematic：輸入輸出，非特定 checkpoint 層級架構 |
 | 學習成效 | 第 5 節待執行實驗 | planned |
 
 ## 8. 未決事項與更新紀錄
 
 首次交付建立教學分類與實作入口。研究團隊後續需提供正式名稱、代表成果、作者歸屬、可引用版本及公開權限，再把具名成果編入對應教學。讀者族群、招募方式、同意程序和決策門檻在讀者試驗開始前決定。
 
-**已確認的架構決策**：正式站採單一文件站，三個研究方向共用版型、元件與建置流程；教學頁與可下載 Notebook 共用範例來源。[初版架構](docs/architecture.md) 記錄功能分區、目標目錄、依賴方向與原型遷移對照。本次初始化僅建立架構文件；第 6.2 節仍是現行預覽方式。
+**已確認的架構決策**：正式站採單一文件站，三個研究方向共用版型、元件與建置流程；教學頁與可下載 Notebook 共用範例來源。[初版架構](docs/architecture.md) 記錄功能分區、目標目錄、依賴方向與原型遷移對照。第 6.2 節記錄現行 Astro 建置與預覽方式。
+
+**產品分類決策**：Collection 是可擴充的一級產品分類；同一產品直接列在所有適用分類，不設主分類。每個收錄產品的使用教學必須寫在產品頁內，跨類共用同一頁；版本與發布資訊維護在同一產品紀錄，詳見[研究產品定位與分類規範](docs/product-protocol.md)。
+
+**撰稿位置**：`src/content/docs/collections/` 存放各分類的英文定義，檔名即分類識別碼。從[產品範本](docs/templates/product.mdx) 建立 `src/content/docs/products/<product-id>.mdx`，以該檔的 `collections` 列出全部適用分類，並在同檔完成 `## Tutorial`。教學腳本以 `demo: true` 標示；第三方模型及純方法案例保留原始歸屬。
 
 ## 9. 維護守則
 
-開發期間將啟動命令、部署方式、檔案分工與維護決策記在 `AGENTS.md`。根目錄的英文 `README.md` 面向開發者，記錄現行原型的預覽、修改、驗證及發布方式。原型交付至 `StatLabX/statlabx.github.io` 的 `main` 分支根目錄，以 GitHub Pages 發布。
+開發期間將啟動命令、部署方式、檔案分工與維護決策記在 `AGENTS.md`。根目錄的英文 `README.md` 面向開發者，記錄現行網站的預覽、修改、驗證及發布方式。發布流程位於 `.github/workflows/pages.yml`，適用於 `StatLabX/statlabx.github.io`。
 
 更新資料、範例或推論時一併更新來源與決策紀錄。區分教學資料、探索性結果及事先註冊的比較。保留失敗與無差異結果。不得將私人資料或未授權權重納入網站。

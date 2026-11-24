@@ -1,57 +1,40 @@
-# Tabula 初版架構
+# Tabula 內容架構
 
-狀態：已確認的正式站設計；本階段交付架構文件。現行站點仍是根目錄的靜態原型，預覽指令與研究規範見 [專案章程](../AGENTS.md)。本文件供維護者使用；面向讀者的網站內容使用英文。
+讀者的路徑是 **選 Collection → 選 Product → 在產品頁跟著 Tutorial 完成一次任務**。維護者只寫一份產品文件。即使產品同時列在統計與科學兩類，版本、安裝方式和使用教學仍來自同一檔案。
 
-## 功能分區與責任
-
-正式站採用一套 Astro + Starlight 文件架構。Domain TFMs（domain-specific tabular foundation models）、Statistical tasks、Scientific tasks 各自回答不同的研究問題，但讀者都需要依序找到教學、理解切分依據、閱讀範例並取得來源。因此三者是內容分類，共用版型、元件與建置流程。
-
-| 分區 | 負責的決策 | 邊界與協作方式 |
-| --- | --- | --- |
-| 教學與參考內容 | 以 MDX 編寫 Homepage、Quickstart、三個方向的教學、模型筆記與閱讀清單。作者決定問題、資料切分、評估方式、範例、圖說及引用。 | 教學頁與 Notebook 使用同一份可執行範例。每篇文章就近交代資料來源、示意或實測性質；具名研究成果依章程核對後收錄。 |
-| 站點與導覽 | Astro 建立靜態路徑；Starlight 提供文件版型、側欄、頁內目錄與搜尋入口。概覽頁用三種任務引導讀者選擇教學。 | 導覽引用內容頁的路徑與標題，文章正文只維護在內容區。優先使用內建版型，有明確缺口時才加入自訂 Astro 元件。 |
-| 圖表與互動 | 靜態圖可直接嵌入 MDX。需要讀者操作時，以 React 和 TypeScript 製作元件；按該元件需要使用 D3.js 繪圖、GSAP 處理動效。 | 文章提供資料、標籤與解讀，元件負責呈現及局部互動。例：切換實驗批次屬於圖表；為何應保留整批測試資料，由文章說明。主要教學內容在靜態頁即可閱讀。 |
-| 樣式與公開素材 | 以 Tailwind CSS 管理字體、色彩、間距與響應式排版。品牌圖、向量示意圖及隨附授權放在公開素材區。 | 跨頁視覺規則集中在樣式區；圖說隨使用情境留在文章。公開素材僅收錄可發布的檔案。 |
-| 建置與發布 | 建置時以 KaTeX 排版公式、Expressive Code 高亮程式，從教學來源產生可下載的 `.ipynb`。GitHub Actions 建置靜態產物並發布至 GitHub Pages。 | 發布流程只消費建置產物。瀏覽器負責搜尋與頁面互動；Python 範例由讀者下載後在自己的環境執行。網站無需後端或模型權重。 |
-
-## 目標目錄樹
-
-下圖是正式站的檔案歸屬。本階段實際落地的是 `AGENTS.md` 的決策紀錄與本文件；其餘路徑留待對應功能開始時建立。圖中省略現行原型，其遷移對照見下表。
+## 內容放在哪裡
 
 ```text
-./
-├── AGENTS.md                      研究章程、維護決策與操作指引
-├── docs/architecture.md           維護者使用的架構文件
-├── astro.config.mjs               正式站設定與 Starlight 整合入口
-├── src/
-│   ├── content/docs/              發布給讀者的英文 MDX
-│   │   ├── index.mdx              Homepage：任務入口與教學概覽
-│   │   ├── quickstart.mdx         Quickstart：Python 入門
-│   │   ├── tutorials/
-│   │   │   ├── domain/            跨資料來源的模型應用
-│   │   │   ├── statistics/        統計任務與不確定性
-│   │   │   └── science/           科學任務與跨批次評估
-│   │   └── reference/             模型筆記與閱讀清單
-│   ├── components/                教學圖表、互動元件與必要的版型擴充
-│   └── styles/                    全站樣式
-├── public/assets/                 可直接發布的靜態素材與授權
-└── .github/workflows/             靜態建置與 Pages 發布流程
+src/content/docs/
+├── collections/          每類一檔：定義服務的研究任務與收錄範圍
+│   ├── domain.mdx        Domain TFMs
+│   ├── statistics.mdx    Statistical Tasks
+│   └── science.mdx       Scientific Tasks
+└── products/             每個產品一檔：產品說明、版本與使用教學
+
+docs/
+├── product-protocol.md   判斷什麼成果算產品、該列入哪些分類
+├── architecture.md       本文件：檔案歸屬與維護方式
+└── templates/product.mdx 新產品的英文撰稿範本
 ```
 
-## 依賴方向與變更依據
+**分類檔**定義一類研究需求，檔名就是分類識別碼，例如 `statistics`。**產品檔**以穩定識別碼命名，例如 `products/<product-id>.mdx`，其網址為 `/products/<product-id>/`。目前收錄兩個有實際腳本的教學 Demo：Cooling Context 與 Batch Error，均標註 `demo: true`。
 
-- **內容 → 元件與素材**：MDX 可引用元件或示意圖；元件透過參數接收所需資料，不回頭讀取某篇文章或依教學路徑選擇行為。新增方向時，先加內容和導覽入口；只有新閱讀任務需要不同操作時才擴充元件。
-- **內容 → 文章與 Notebook**：同一份範例按教學順序供網頁顯示及建置流程匯出。修訂資料切分或程式時只改來源，不手動同步下載檔；具體擷取方式留待遷移第一篇教學時決定。
-- **來源 → 靜態產物 → 發布**：建置整合內容、導覽、樣式、元件與素材。部署只需取得該次建置的產物；讀者造訪頁面不會觸發建置或 Python 運算。
+歸屬只在產品檔開頭的 `collections` 欄位登記。例如 `collections: [statistics, science]` 表示兩類都要列出該產品。Astro 建置時依此產生清單，分類檔無須再抄一份產品名稱。全站 Quickstart 介紹共同的入門操作，每項產品的具體用法則寫在自己的 `## Tutorial`。
 
-## 靜態原型的遷移對照
+## 如何新增或更新內容
 
-| 目前位置（已存在） | 正式站的承接位置（規劃） |
+| 要做的事 | 修改位置與完成條件 |
 | --- | --- |
-| `index.html` 的頁首、側欄、搜尋對話框與內容容器 | Starlight 承接共用版型、導覽與搜尋。遷移時核對章程列出的 `#domain`、`#statistics`、`#science` 三個舊入口與新內容的對應。 |
-| `app.js` 的首頁、Quickstart、模型筆記與閱讀清單 | 文字與來源移入對應 MDX；路由、搜尋與文件版型交給站點層。 |
-| `app.js` 的程式碼顯示與 Notebook 下載 | 程式呈現由 Expressive Code 承接；目前在瀏覽器組裝的 Notebook 改為建置產物，仍保留教學順序與來源。 |
-| `tutorials.js` 的三組教學 | 依方向移到 `src/content/docs/tutorials/`，保留合成資料的說明、種子、切分、評估與文獻。 |
-| `style.css`、`assets/*.svg`、`assets/vendor/` | 共用樣式歸入 `src/styles/`，沿用的圖檔歸入 `public/assets/`。遷移時按新站實際使用的第三方資產保留相應授權。 |
+| 收錄產品 | 依[產品規範](product-protocol.md)核對用途、來源與歸屬。複製[英文範本](templates/product.mdx)到 `src/content/docs/products/<product-id>.mdx`，填入維護者、交付形式、版本、存取條件及所有適用分類。 |
+| 寫產品教學 | 在同檔 `## Tutorial` 示範一次完整操作：取得或開啟產品、準備輸入、執行任務、解讀輸出。收錄前用所述版本核對這條路徑；Notebook 可作補充。 |
+| 更新版本或跨類收錄 | 修改原產品檔，核對教學與新版輸出。變更名稱或分類時保留檔名，既有引用才會繼續指向同一產品。 |
+| 新增第四個方向 | 在 `collections/` 新增英文 MDX，說明收錄範圍與邊界例子；把新分類識別碼加入適用產品的 `collections` 欄位。 |
 
-目前仍按章程第 6.2 節預覽原型。正式站的套件設定、元件、建置指令與部署工作流程，待實作並驗證後再記入章程；現行原型的開發與發布步驟見英文 [README](../README.md)。
+## 撰稿、預覽與發布的邊界
+
+`src/components/` 負責分類清單、產品摘要、導覽與互動圖。Starlight 從 MDX 產生產品頁、頁內目錄與搜尋索引；頁面可直接閱讀，互動圖才載入 React。`public/demos/` 是產品頁連結的 Python 腳本。網站沒有後端，不執行 Python。
+
+`src/data/legacy-articles.ts` 保留 Quickstart 與三組合成資料案例。參考文章及 `/downloads/*.ipynb` 共用這些紀錄；首頁舊 `#domain`、`#statistics`、`#science` 書籤會轉到相應分類。
+
+`npm run build` 先驗證產品規範，再將網站建置到 `dist/`。GitHub Pages 使用 Actions 發布這個目錄；預覽與切換部署來源的步驟見[開發者 README](../README.md)。

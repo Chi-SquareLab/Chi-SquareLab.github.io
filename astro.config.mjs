@@ -1,0 +1,33 @@
+import { defineConfig } from 'astro/config';
+import react from '@astrojs/react';
+import { unified } from '@astrojs/markdown-remark';
+import starlight from '@astrojs/starlight';
+import tailwind from '@tailwindcss/vite';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+
+export default defineConfig({
+  site: 'https://statlabx.github.io',
+  output: 'static',
+  markdown: { processor: unified({ remarkPlugins: [remarkMath], rehypePlugins: [rehypeKatex] }) },
+  vite: { plugins: [tailwind()] },
+  integrations: [
+    react(),
+    starlight({
+      title: 'Tabula',
+      description: 'A field guide to tabular models and research tools in statistics and science.',
+      favicon: '/assets/atlas.svg',
+      pagination: false,
+      customCss: ['katex/dist/katex.min.css', './src/styles/utilities.css', './src/styles/tabula.css'],
+      components: {
+        Header: './src/components/Header.astro',
+        MarkdownContent: './src/components/DocContent.astro',
+      },
+      sidebar: [
+        { label: 'Getting Started', items: [{ label: 'Homepage', link: '/' }, { slug: 'quickstart' }] },
+        { label: 'Collections', items: [{ autogenerate: { directory: 'collections' } }] },
+        { label: 'Reference', items: [{ slug: 'reference/model-architecture' }, { slug: 'reference/reading-list' }] },
+      ],
+    }),
+  ],
+});
