@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#165e49" />
+    <meta
+      name="description"
+      content="A field guide to tabular foundation models in statistics and science."
+    />
+    <title>Homepage · Tabula</title>
+    <link rel="icon" href="assets/atlas.svg" />
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="assets/vendor/purify.min.js"></script>
+    <script defer src="tutorials.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+    <header>
+      <button
+        id="menu"
+        class="icon-btn"
+        aria-label="Open navigation"
+        aria-expanded="false"
+        aria-controls="sidebar"
+        data-i="menu"
+      ></button
+      ><a class="brand" href="#overview"
+        ><img src="assets/atlas.svg" alt="" width="33" height="33" />Tabula</a
+      ><span class="head-divider"></span>
+      <nav class="headnav" aria-label="Main">
+        <a href="#quickstart">Getting Started</a
+        ><a href="#overview/collections">Collections</a
+        ><a href="#architecture">Reference</a>
+      </nav>
+      <button id="search-open">
+        <i data-i="search"></i><span>Search docs</span><kbd>Ctrl K</kbd>
+      </button>
+    </header>
+    <div id="shade" hidden></div>
+    <aside id="sidebar">
+      <nav aria-label="Documentation">
+        <div class="navgroup">GETTING STARTED</div>
+        <a href="#overview"><i data-i="book"></i>Homepage</a
+        ><a href="#quickstart"><i data-i="terminal"></i>Quickstart</a>
+        <div class="navgroup">COLLECTIONS</div>
+        <a href="#domain"><i data-i="layers"></i>Domain TFMs</a
+        ><a href="#statistics"><i data-i="chart"></i>Statistical tasks</a
+        ><a href="#science"><i data-i="flask"></i>Scientific tasks</a>
+        <div class="navgroup">REFERENCE</div>
+        <a href="#architecture"><i data-i="nodes"></i>Model architecture</a
+        ><a href="#references"><i data-i="library"></i>Reading list</a>
+      </nav>
+      <div class="side-foot"><i data-i="book"></i> Research handbook</div>
+    </aside>
+    <main id="content" tabindex="-1"></main>
+    <dialog id="search-dialog" aria-label="Search documentation">
+      <div class="searchline">
+        <i data-i="search"></i
+        ><input
+          id="query"
+          type="search"
+          aria-label="Search pages"
+          placeholder="Search tutorials and references…"
+          autocomplete="off"
+        /><button id="close-search">Esc</button>
+      </div>
+      <div id="results"></div>
+    </dialog>
+  </body>
+</html>
