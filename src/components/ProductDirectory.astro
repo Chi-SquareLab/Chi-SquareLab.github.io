@@ -1,0 +1,30 @@
+---
+import { getProductGroups } from '../data/product-groups';
+
+const groups = await getProductGroups();
+---
+
+<section class="tabula-directory not-content" id="collections" aria-labelledby="tabula-directory-title">
+  <div class="tabula-section-heading">
+    <h2 id="tabula-directory-title">Collections</h2>
+    <p>Open a product for access details and a tutorial.</p>
+  </div>
+
+  <div class="tabula-directory__groups">
+    {groups.map(({ id, label, products }) => (
+      <section class="tabula-directory__group" aria-labelledby={`tabula-directory-${id}`}>
+        <h3 id={`tabula-directory-${id}`}>{label}</h3>
+        {products.length ? (
+          <ul role="list">
+            {products.map((product) => (
+              <li>
+                <a href={`/${product.id}/`}>{product.data.title}</a>
+                {product.data.description && <p>{product.data.description}</p>}
+              </li>
+            ))}
+          </ul>
+        ) : <p>No products listed yet.</p>}
+      </section>
+    ))}
+  </div>
+</section>

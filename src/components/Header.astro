@@ -1,38 +1,50 @@
 ---
 import Search from '@astrojs/starlight/components/Search.astro';
 import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro';
+
+const links = [
+  ['Getting Started', '/quickstart/'],
+  ['Collections', '/#collections'],
+  ['Reference', '/reference/model-architecture/'],
+];
+
+function currentSection(path: string) {
+  if (/^\/(products|collections)\//.test(path)) return 'Collections';
+  if (/^\/(examples|reference)\//.test(path)) return 'Reference';
+  return 'Getting Started';
+}
+
 const path = Astro.url.pathname;
-const section = /^\/(products|collections)\//.test(path) ? 'Collections'
-  : /^\/(examples|reference)\//.test(path) ? 'Reference' : 'Getting Started';
-const links = [['Getting Started', '/quickstart/'], ['Collections', '/#collections'], ['Reference', '/reference/model-architecture/']];
+const section = currentSection(path);
 ---
 <div class="topbar flex items-center">
   <a class="brand" href="/"><img src="/assets/atlas.svg" alt="" width="32" height="32"/>Tabula</a>
-  <nav aria-label="Main navigation" data-root-nav={path === '/' ? '' : undefined}>{links.map(([label, href]) => <a href={href} aria-current={label === section ? 'location' : undefined}>{label}</a>)}</nav>
+  <nav aria-label="Main navigation" data-root-nav={path === '/' ? '' : undefined}>
+    {links.map(([label, href]) => (
+      <a href={href} aria-current={label === section ? 'location' : undefined}>{label}</a>
+    ))}
+  </nav>
   <div class="tools"><Search /><span class="appearance"><ThemeSelect /></span></div>
 </div>
 <script>
-  // Existing bookmarks used hash routes. Only translate them on the homepage.
-  function routeBookmark() {
+  import { legacyBookmarkTarget } from '../navigation/legacy-bookmarks';
+
+  function syncHomeNavigation() {
     if (location.pathname !== '/') return;
     const [route, part] = location.hash.slice(1).split('/');
-    const routes: Record<string,string> = {
-      overview: '/', quickstart: '/quickstart/', domain: '/collections/domain/',
-      statistics: '/collections/statistics/', science: '/collections/science/',
-      architecture: '/reference/model-architecture/', references: '/reference/reading-list/',
-    };
     const navLinks = document.querySelectorAll<HTMLAnchorElement>('nav[data-root-nav] a');
     for (const link of navLinks) {
-      if (link.hash === '#collections' ? route === 'collections' : link.pathname === '/quickstart/' && route !== 'collections') link.setAttribute('aria-current', 'location');
+      const active = route === 'collections'
+        ? link.hash === '#collections'
+        : link.pathname === '/quickstart/';
+      if (active) link.setAttribute('aria-current', 'location');
       else link.removeAttribute('aria-current');
     }
-    if (!Object.hasOwn(routes, route)) return;
-    const target = part && ['domain', 'statistics', 'science'].includes(route)
-      ? '/examples/' + route + '/' : routes[route];
-    location.replace(target + (part ? '#' + encodeURIComponent(part) : ''));
+    const target = legacyBookmarkTarget(route, part);
+    if (target) location.replace(target);
   }
-  routeBookmark();
-  window.addEventListener('hashchange', routeBookmark);
+  syncHomeNavigation();
+  window.addEventListener('hashchange', syncHomeNavigation);
 </script>
 <style>
   .topbar {height:100%; gap:clamp(.75rem,3vw,2.4rem)}

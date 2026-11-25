@@ -51,12 +51,12 @@
   --tabula-shadow: 0 1px 4px #0003;
 }
 
-/* Keep the left navigation on the homepage and give the directories room for cards. */
-main:has(.tabula-home, .tabula-catalog) {
+/* Keep the left navigation on the homepage and make room for the directory. */
+main:has(.tabula-home) {
   --sl-content-pad-x: clamp(1rem, 3.2vw, 3.25rem);
 }
 
-html:not([data-has-toc]) main:has(.tabula-home, .tabula-catalog) {
+html:not([data-has-toc]) main:has(.tabula-home) {
   --sl-content-width: 74rem;
 }
 
@@ -66,16 +66,6 @@ main:has(.tabula-home) .sl-container {
 
 main:has(.tabula-home) .content-panel {
   padding-block-start: clamp(1rem, 2.9vw, 2.5rem);
-}
-
-main:has(.tabula-catalog) .content-panel:has(h1) {
-  background: linear-gradient(110deg, var(--tabula-soft), transparent 72%);
-}
-
-.sl-markdown-content:has(> .tabula-catalog) > p:first-of-type {
-  max-inline-size: 68ch;
-  color: var(--tabula-muted);
-  font-size: 1.0625rem;
 }
 
 /* Homepage hero: use Starlight's page heading and action markup. */
@@ -123,8 +113,6 @@ main:has(.tabula-catalog) .content-panel:has(h1) {
 
 .tabula-hero__brand span,
 .tabula-hero__figure figcaption,
-.tabula-count,
-.tabula-kicker,
 .tabula-product__facts dt {
   font: 650 0.71875rem / 1.35 var(--tabula-mono);
   letter-spacing: 0.07em;
@@ -240,30 +228,23 @@ main:has(.tabula-catalog) .content-panel:has(h1) {
 }
 
 .tabula-button svg,
-.tabula-card__link svg,
 .tabula-note svg {
   flex: none;
 }
 
-:where(.tabula-home, .tabula-catalog, .tabula-product) a:focus-visible,
+:where(.tabula-home, .tabula-product) a:focus-visible,
 .tabula-button:focus-visible {
   outline: 3px solid var(--tabula-accent);
   outline-offset: 3px;
 }
 
-/* Collection and product directories. */
-.tabula-collections,
-.tabula-notes,
-.tabula-catalog {
+/* Homepage product directory and site notes. */
+.tabula-directory,
+.tabula-notes {
   margin-block-start: clamp(1.75rem, 3.5vw, 2.75rem);
 }
 
 .tabula-section-heading {
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.625rem 1rem;
   margin-block-end: 1rem;
 }
 
@@ -282,103 +263,25 @@ main:has(.tabula-catalog) .content-panel:has(h1) {
   line-height: 1.55;
 }
 
-.tabula-count {
-  padding: 0.3rem 0.55rem;
-  border: 1px solid var(--tabula-line);
-  border-radius: 0.375rem;
-  background: var(--tabula-soft);
-  color: var(--tabula-muted);
-}
-
-.tabula-card-grid,
+.tabula-directory__group ul,
 .tabula-note-grid,
 .tabula-product__memberships ul {
   padding: 0;
   list-style: none;
 }
 
-.tabula-card-grid,
-.tabula-note-grid {
+.tabula-directory__groups {
   display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 1.5rem;
 }
 
-.tabula-card-grid--products {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+.tabula-directory__group {
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--tabula-line);
 }
 
-.tabula-card,
-.tabula-note {
-  height: 100%;
-  border: 1px solid var(--tabula-line);
-  border-radius: 0.875rem;
-  background: var(--tabula-surface);
-  box-shadow: var(--tabula-shadow);
-  color: var(--tabula-ink);
-  text-decoration: none;
-}
-
-.tabula-card {
-  display: flex;
-  flex-direction: column;
-}
-
-.tabula-card:hover,
-.tabula-note:hover {
-  border-color: var(--tabula-accent);
-}
-
-.tabula-card__art {
-  display: grid;
-  min-height: 7rem;
-  aspect-ratio: 320 / 130;
-  place-items: center;
-  overflow: hidden;
-  border-block-end: 1px solid var(--tabula-line);
-  border-radius: 0.8125rem 0.8125rem 0 0;
-  background: #f0f6f1;
-}
-
-.tabula-card__art[data-art='statistics'] {
-  background: #f4f2fa;
-}
-
-.tabula-card__art[data-art='science'] {
-  background: #fbf6ed;
-}
-
-.tabula-card__art img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.tabula-card__art[data-art='atlas'] {
-  background-color: #f1f7f2;
-  background-image: radial-gradient(#c8ddce 1px, transparent 1px);
-  background-size: 0.75rem 0.75rem;
-}
-
-.tabula-card__art[data-art='atlas'] img {
-  width: 3rem;
-  height: 3rem;
-}
-
-.tabula-card__body {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: start;
-  gap: 0.45rem;
-  padding: clamp(0.9rem, 1.5vw, 1.25rem);
-}
-
-.tabula-kicker {
-  color: var(--tabula-accent);
-}
-
-.tabula-card__body h3,
+.tabula-directory__group h3,
 .tabula-note h3 {
   color: var(--tabula-ink);
   font-size: clamp(1.05rem, 0.9rem + 0.55vw, 1.325rem);
@@ -387,42 +290,66 @@ main:has(.tabula-catalog) .content-panel:has(h1) {
   letter-spacing: -0.025em;
 }
 
-.tabula-card__body p,
+.tabula-directory__group h3 {
+  margin-block-end: 0.65rem;
+}
+
+.tabula-directory__group ul {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.tabula-directory__group a {
+  color: var(--tabula-accent);
+  font-weight: 660;
+  text-decoration: underline;
+  text-underline-offset: 0.19em;
+}
+
+.tabula-directory__group a:hover {
+  color: var(--tabula-accent-hover);
+}
+
+.tabula-directory__group p,
 .tabula-note p {
   color: var(--tabula-muted);
   font-size: 0.875rem;
   line-height: 1.55;
 }
 
-.tabula-card__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  margin-block-start: auto;
-  padding-block-start: 0.65rem;
-  color: var(--tabula-accent);
-  font-size: 0.875rem;
-  font-weight: 660;
-}
-
-.tabula-card:hover .tabula-card__link,
-.tabula-card:focus-visible .tabula-card__link,
-.tabula-note:hover h3,
-.tabula-note:focus-visible h3 {
-  text-decoration: underline;
-  text-underline-offset: 0.19em;
+.tabula-directory__group li p {
+  margin-block-start: 0.25rem;
 }
 
 .tabula-note-grid {
+  display: grid;
+  gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
 }
 
 .tabula-note {
   display: grid;
+  height: 100%;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem;
   padding: 0.875rem 1rem;
+  border: 1px solid var(--tabula-line);
+  border-radius: 0.875rem;
+  background: var(--tabula-surface);
+  box-shadow: var(--tabula-shadow);
+  color: var(--tabula-ink);
+  text-decoration: none;
+}
+
+.tabula-note:hover {
+  border-color: var(--tabula-accent);
+}
+
+.tabula-note:hover h3,
+.tabula-note:focus-visible h3 {
+  text-decoration: underline;
+  text-underline-offset: 0.19em;
 }
 
 .tabula-note__icon {
@@ -436,21 +363,12 @@ main:has(.tabula-catalog) .content-panel:has(h1) {
   color: var(--tabula-accent);
 }
 
-.tabula-note > svg,
-.tabula-empty a {
+.tabula-note > svg {
   color: var(--tabula-accent);
 }
 
 .tabula-note p {
   margin-block-start: 0.25rem;
-}
-
-.tabula-empty {
-  padding: 1.25rem;
-  border: 1px dashed var(--tabula-line-strong);
-  border-radius: 0.875rem;
-  background: var(--tabula-soft);
-  color: var(--tabula-muted);
 }
 
 /* Product facts sit immediately before the authored MDX. */
@@ -464,8 +382,7 @@ main:has(.tabula-catalog) .content-panel:has(h1) {
 
 .tabula-product__heading,
 .tabula-product__actions,
-.tabula-tags,
-.tabula-product__memberships ul {
+.tabula-tags {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -497,7 +414,7 @@ main:has(.tabula-catalog) .content-panel:has(h1) {
   line-height: 1.4;
 }
 
-.tabula-tag::before {
+.tabula-tag[data-tone]::before {
   width: 0.36rem;
   height: 0.36rem;
   border-radius: 100%;
@@ -546,25 +463,6 @@ main:has(.tabula-catalog) .content-panel:has(h1) {
   border-block-start: 1px solid var(--tabula-line);
 }
 
-.tabula-product__memberships a {
-  display: inline-flex;
-  min-height: 2rem;
-  align-items: center;
-  padding: 0.25rem 0.6rem;
-  border: 1px solid var(--tabula-line-strong);
-  border-radius: 0.375rem;
-  background: var(--tabula-surface);
-  color: var(--tabula-accent);
-  font-size: 0.8125rem;
-  font-weight: 620;
-  text-decoration: none;
-}
-
-.tabula-product__memberships a:hover {
-  border-color: var(--tabula-accent);
-  text-decoration: underline;
-}
-
 .tabula-product__actions {
   gap: 0.625rem;
   margin-block-start: 1rem;
@@ -577,7 +475,6 @@ main:has(.tabula-catalog) .content-panel:has(h1) {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .tabula-card,
   .tabula-note,
   .tabula-button {
     transition: border-color 150ms ease, background-color 150ms ease;

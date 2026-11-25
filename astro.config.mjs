@@ -7,7 +7,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 export default defineConfig({
-  site: 'https://statlabx.github.io',
+  site: 'https://chi-squarelab.github.io',
   output: 'static',
   markdown: { processor: unified({ remarkPlugins: [remarkMath], rehypePlugins: [rehypeKatex] }) },
   vite: { plugins: [tailwind()] },
@@ -22,10 +22,12 @@ export default defineConfig({
       components: {
         Header: './src/components/Header.astro',
         MarkdownContent: './src/components/DocContent.astro',
+        Sidebar: './src/components/Sidebar.astro',
       },
       sidebar: [
         { label: 'Getting Started', items: [{ label: 'Homepage', link: '/' }, { slug: 'quickstart' }] },
-        { label: 'Collections', items: [{ autogenerate: { directory: 'collections' } }] },
+        // Sidebar.astro fills this section from the products' collection memberships.
+        { label: 'Collections', items: [] },
         { label: 'Reference', items: [{ slug: 'reference/model-architecture' }, { slug: 'reference/reading-list' }] },
       ],
     }),

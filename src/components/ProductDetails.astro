@@ -1,19 +1,15 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import { Icon } from '@astrojs/starlight/components';
+import collectionGroups from '../data/collection-groups.json';
 
 interface Props {
   data: CollectionEntry<'docs'>['data'];
 }
 
 const { data } = Astro.props;
-const memberIds = new Set(data.collections?.map((id) => `collections/${id}`));
-const collections = await getCollection('docs', (entry) =>
-  memberIds.has(entry.id) && (import.meta.env.MODE !== 'production' || !entry.data.draft)
-);
-collections.sort((a, b) =>
-  (a.data.sidebar.order ?? Infinity) - (b.data.sidebar.order ?? Infinity) || a.id.localeCompare(b.id)
-);
+const memberIds = new Set(data.collections);
+const memberships = collectionGroups.filter(({ id }) => memberIds.has(id));
 
 function getSourceLink(value?: string) {
   if (!value) return undefined;
@@ -56,12 +52,12 @@ const source = getSourceLink(data.source?.trim());
     {data.release && <div><dt>Release</dt><dd>{data.release}</dd></div>}
     {data.delivery?.length ? <div><dt>Delivery</dt><dd>{data.delivery.join(', ')}</dd></div> : null}
     {data.access && <div><dt>Access</dt><dd>{data.access}</dd></div>}
-    {collections.length > 0 && (
+    {memberships.length > 0 && (
       <div class="tabula-product__memberships">
         <dt>Collections</dt>
         <dd>
-          <ul role="list">
-            {collections.map(({ id, data }) => <li><a href={`/${id}/`}>{data.title}</a></li>)}
+          <ul class="tabula-tags" role="list">
+            {memberships.map(({ label }) => <li class="tabula-tag">{label}</li>)}
           </ul>
         </dd>
       </div>

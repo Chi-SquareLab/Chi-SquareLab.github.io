@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { scaleLinear } from 'd3-scale';
 import { gsap } from 'gsap';
+import './BatchErrorPlot.css';
 
 /** Hold the tutorial's batch A fixed; vary the single prediction in batch B. */
 export default function BatchErrorPlot() {

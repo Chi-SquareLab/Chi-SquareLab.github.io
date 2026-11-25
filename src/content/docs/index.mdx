@@ -1,13 +1,13 @@
 ---
 title: Homepage
-description: Find tabular foundation models and research tools by task, check their sources and access terms, and follow their tutorials.
+description: Browse models, tasks, and applications for tabular data, with access details and a tutorial for each product.
 template: doc
 tableOfContents: false
 hero:
   title: |-
     <span class="tabula-hero__brand" aria-hidden="true"><img src="/assets/atlas.svg" width="28" height="28" alt=""> Tabula <span>Research handbook</span></span>
     <span class="tabula-hero__headline">Tabular foundation models for statistics &amp; science</span>
-  tagline: Find a model or tool for your task, check how to get it, and work through its tutorial.
+  tagline: Explore models, tasks, and applications for tabular data.
   image:
     html: |-
       <figure class="tabula-hero__figure">
@@ -15,7 +15,7 @@ hero:
         <img src="/assets/context.svg" width="225" height="148" alt="Labeled context rows and unlabeled query features go into a model, which returns a prediction.">
       </figure>
   actions:
-    - text: Browse collections
+    - text: Browse products
       link: /#collections
       icon: down-arrow
       attrs:
@@ -29,10 +29,10 @@ hero:
 ---
 
 import { Icon } from '@astrojs/starlight/components';
-import CollectionCards from '../../components/CollectionCards.astro';
+import ProductDirectory from '../../components/ProductDirectory.astro';
 
 <div class="tabula-home not-content">
-  <CollectionCards />
+  <ProductDirectory />
 
   <section class="tabula-notes" aria-labelledby="tabula-notes-title">
     <div class="tabula-section-heading">

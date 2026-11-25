@@ -5,12 +5,20 @@ import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import groups from '../src/data/collection-groups.json' with { type: 'json' };
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const docs = join(root, 'src/content/docs');
 const ids = (folder) => readdirSync(join(docs, folder))
   .filter((file) => file.endsWith('.mdx')).map((file) => file.slice(0, -4));
-const categories = new Set(ids('collections'));
+const categories = new Set();
+for (const { id, label } of groups) {
+  if (typeof id !== 'string' || !/^[a-z][a-z0-9-]*$/.test(id) || categories.has(id)) {
+    throw new Error(`Invalid or duplicate collection group ID: ${id}`);
+  }
+  if (typeof label !== 'string' || !label.trim()) throw new Error(`Missing display label for ${id}`);
+  categories.add(id);
+}
 const records = ids('products');
 const parser = unified().use(remarkParse);
 
