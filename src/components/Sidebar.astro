@@ -44,7 +44,7 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
       const open = !entry.collapsed || hasCurrentLink(entry.entries) || (isCollections && !!defaultGroup);
       return (
         <li>
-          <details open={open}>
+          <details open={open} data-collections={isCollections ? '' : undefined}>
             <summary class="section-label" aria-current={isCollections && defaultGroup ? 'location' : undefined}>
               <span>
                 {entry.label}

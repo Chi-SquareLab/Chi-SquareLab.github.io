@@ -4,7 +4,7 @@ import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro';
 
 const links = [
   ['Overview', '/'],
-  ['Collections', '/#collections'],
+  ['Collections', '/#our-products'],
   ['Reference', '/reference/model-architecture/'],
 ];
 
@@ -29,6 +29,8 @@ const section = currentSection(path);
 <script>
   import { legacyBookmarkTarget } from '../navigation/legacy-bookmarks';
 
+  let wasExpanded: boolean | undefined;
+
   function syncHomeNavigation() {
     if (location.pathname !== '/') return;
     const [route, part] = location.hash.slice(1).split('/');
@@ -36,16 +38,37 @@ const section = currentSection(path);
     const navLinks = document.querySelectorAll<HTMLAnchorElement>('nav[data-root-nav] a');
     for (const link of navLinks) {
       const active = inDirectory
-        ? link.hash === '#collections'
+        ? link.hash === '#our-products'
         : link.pathname === '/' && !link.hash;
       if (active) link.setAttribute('aria-current', 'location');
       else link.removeAttribute('aria-current');
+    }
+    const branch = document.querySelector<HTMLDetailsElement>('details[data-collections]');
+    const label = branch?.querySelector('summary');
+    const overview = document.querySelector('.overview-item a');
+    if (branch && label && overview) {
+      if (inDirectory) {
+        wasExpanded ??= branch.open;
+        branch.open = true;
+        label.setAttribute('aria-current', 'location');
+        overview.removeAttribute('aria-current');
+      } else {
+        if (wasExpanded !== undefined) branch.open = wasExpanded;
+        wasExpanded = undefined;
+        label.removeAttribute('aria-current');
+        overview.setAttribute('aria-current', 'page');
+      }
     }
     const target = legacyBookmarkTarget(route, part);
     if (target) location.replace(target);
   }
   syncHomeNavigation();
   window.addEventListener('hashchange', syncHomeNavigation);
+  window.addEventListener('pageshow', syncHomeNavigation);
+  // A repeated click on the current fragment does not emit hashchange.
+  document.querySelector('nav[data-root-nav] a[href="/#our-products"]')?.addEventListener('click', () => {
+    if (location.hash === '#our-products') syncHomeNavigation();
+  });
 </script>
 <style>
   .topbar {height:100%; gap:clamp(.75rem,3vw,2.4rem)}

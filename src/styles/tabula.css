@@ -47,6 +47,12 @@
   --tabula-demo-ink: #f6ddb8;
 }
 
+/* Give the product heading enough scroll range to land below the fixed header,
+   even on tall screens where the directory is near the end of Overview. */
+.overview-destinations:has(#our-products:target, #collections:target) {
+  min-block-size: calc(100vh - var(--sl-nav-height));
+}
+
 /* Keep Overview compact within Starlight's standard doc layout. */
 .sl-markdown-content:has(> .tabula-quickstart) {
   --sl-content-gap-y: 0.75rem;
