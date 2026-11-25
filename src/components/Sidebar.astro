@@ -231,9 +231,10 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
   }
 
   .sidebar-link[aria-current='page'] {
-    color: var(--tabula-button-text);
-    background-color: var(--tabula-fill-accent);
-    font-weight: 600;
+    color: var(--tabula-sidebar-active-ink);
+    background-color: var(--tabula-sidebar-active-bg);
+    box-shadow: inset 2.5px 0 0 var(--tabula-fill-accent);
+    font-weight: 640;
   }
 
   summary:focus-visible,

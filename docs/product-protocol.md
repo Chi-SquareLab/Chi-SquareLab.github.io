@@ -45,8 +45,8 @@ Tabula 收錄團隊能交到使用者手中的研究成果。**分類的單位�
 
 ### 共通欄位（所有大類）
 
-- **必填**：`title`、`description`（一句話定位）、`collections`、`status`（`Preview`／`Released`／`Archived`）、`release`、`maintainer`、`source`（GitHub／主頁網址或站內檔案）。
-- **選填**：`demo`（教學範例標記）、`delivery`（交付形式）、`access`（有特殊申請或存取條件時才填）。
+- **必填**：`title`、`description`（一句話定位）、`collections`、`status`（`Preview`／`Released`／`Archived`）、`maintainer`、`source`（GitHub／主頁網址或站內檔案）。
+- **選填**：`release`（獨立的產品版本標記；程式碼版本號留在 GitHub 維護，不強制填入）、`demo`（教學範例標記）、`delivery`（交付形式）、`access`（有特殊申請或存取條件時才填）。
 
 ### `models` 專屬元信息（`model:` 區塊）
 

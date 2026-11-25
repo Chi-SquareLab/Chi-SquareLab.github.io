@@ -4,7 +4,6 @@ import { mission } from '../../data/welcome-content';
 
 <section id="mission" class="mission-section" aria-labelledby="mission-title" data-reveal-group>
   <header class="section-rule" data-reveal>
-    <span class="folio">02 / Statement</span>
     <h2 id="mission-title">{mission.sectionTitle}</h2>
   </header>
 
@@ -93,18 +92,15 @@ import { mission } from '../../data/welcome-content';
       </div>
     </div>
 
-    <ol class="mission-pillars" aria-label="Core research pillars">
-      {mission.pillars.map((pillar, i) => (
+    <ul class="mission-pillars" aria-label="Core research pillars">
+      {mission.pillars.map((pillar) => (
         <li class="pillar-item" data-reveal>
-          <div class="pillar-head">
-            <span class="pillar-index">{String(i + 1).padStart(2, '0')}</span>
-            <span class="pillar-kicker">{pillar.kicker}</span>
-          </div>
+          <div class="pillar-kicker">{pillar.kicker}</div>
           <h3>{pillar.title}</h3>
           <p>{pillar.summary}</p>
         </li>
       ))}
-    </ol>
+    </ul>
   </div>
 </section>
 
@@ -210,22 +206,12 @@ import { mission } from '../../data/welcome-content';
     border-top: 1px solid var(--rule);
   }
 
-  .pillar-head {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
-    margin-bottom: 0.7rem;
+  .pillar-kicker {
+    margin: 0 0 0.7rem;
+    color: var(--cyan);
     font: 600 0.67rem / 1.3 var(--mono);
     letter-spacing: 0.09em;
     text-transform: uppercase;
-  }
-
-  .pillar-index {
-    color: var(--crimson);
-  }
-
-  .pillar-kicker {
-    color: var(--cyan);
   }
 
   .pillar-item h3 {

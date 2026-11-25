@@ -52,8 +52,8 @@
 | 項目 | 證據 | 性質 |
 | --- | --- | --- |
 | 三個研究方向及入口 | 委託、`src/data/collection-groups.json`（models、tasks、applications） | observed：介面範圍；初版以 `src/content/docs/collections/` 定義頁實作，屬歷史紀錄 |
-| 首頁歡迎頁與研究動態 | `src/pages/index.astro`、`src/components/welcome/`、`src/data/research-news.json` | observed：現行實作；Chi-SquareLab 名稱與組織頁由委託確認，已發布首則 SurvTFM v0.6.3 動態 |
-| 首個正式模型產品（SurvTFM） | `src/content/docs/products/survtfm.mdx`、`TAO-Joker/survival-tfm-system` (`v0.6.3`) | observed：取代初版佔位示範 `Cooling Context`，權重 `SurvTFM.pt` 依上游授權管道取得 |
+| 首頁歡迎頁與研究動態 | `src/pages/index.astro`、`src/components/welcome/`、`src/data/research-news.json` | observed：現行實作；Chi-SquareLab 名稱與組織頁由委託確認，已發布首則 SurvTFM 動態 |
+| 首個正式模型產品（SurvTFM） | `src/content/docs/products/survtfm.mdx`、`TAO-Joker/survival-tfm-system` | observed：取代初版佔位示範 `Cooling Context`，權重 `SurvTFM.pt` 依上游授權管道取得 |
 | 跨域、區間、批次教學 | `src/data/notebook-articles.ts` 各章節、程式與 sources | derived：合成案例設計 |
 | 模型資訊流 | `public/assets/context.svg` 與 Model architecture | schematic：輸入輸出，非特定 checkpoint 層級架構 |
 | 學習成效 | 第 5 節待執行實驗 | planned |

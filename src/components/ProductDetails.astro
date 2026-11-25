@@ -106,7 +106,7 @@ const otherWeights =
   </div>
 
   {model ? (
-    <dl class="tabula-product__facts">
+    <dl class:list={['tabula-product__facts', { 'tabula-product__facts--triple': !data.release }]}>
       <div>
         <dt>Domain</dt>
         <dd>{model.domain}</dd>

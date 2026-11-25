@@ -5,7 +5,6 @@ collections: [models]
 maintainer: "Chi-SquareLab"
 source: "https://github.com/TAO-Joker/survival-tfm-system"
 status: Released
-release: "v0.6.3"
 model:
   domain: "Survival & Reliability"
   tasks: ["Survival prediction", "Hazard & RMST", "Population inference"]
@@ -16,7 +15,7 @@ model:
 
 Alongside individual survival prediction, the local workspace provides separate statistical layers for continuous-time bias-corrected population inference (`paper_inference`), IPCW model evaluation, prespecified two-group comparisons, industrial reliability qualification, and study design.
 
-**Scientific boundaries.** Per prediction call, the local adapter accepts 2–256 support rows, 1–64 query rows, and up to 256 raw features using support-only preprocessing. All outputs remain inside the declared finite follow-up horizon with no unobserved tail extrapolation. Competing risks, left truncation, longitudinal covariate histories, causal treatment-effect identification, simultaneous confidence bands, and clinical deployment are outside `v0.6.3`.
+**Scientific boundaries.** Per prediction call, the local adapter accepts 2–256 support rows, 1–64 query rows, and up to 256 raw features using support-only preprocessing. All outputs remain inside the declared finite follow-up horizon with no unobserved tail extrapolation. Competing risks, left truncation, longitudinal covariate histories, causal treatment-effect identification, simultaneous confidence bands, and clinical deployment are outside the current release.
 
 ## Tutorial
 

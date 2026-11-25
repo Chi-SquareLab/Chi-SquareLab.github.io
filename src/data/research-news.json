@@ -2,13 +2,13 @@
   {
     "date": "2026-11-25",
     "kind": "Model Release",
-    "title": "SurvTFM v0.6.3: In-context survival foundation model and local research workspace",
+    "title": "SurvTFM: In-context survival foundation model and local research workspace",
     "summary": "Our first listed model pairs a frozen 27.6M-parameter continuous-time tabular survival model with a local workbench for survival prediction, bias-corrected population inference, evaluation, and study design.",
     "url": "/products/survtfm/",
     "cover": {
       "src": "/assets/news/survtfm-workbench.png",
       "alt": "SurvTFM local research workspace displaying individual survival trajectories and cohort summaries",
-      "caption": "SurvTFM v0.6.3 · Local Workspace",
+      "caption": "SurvTFM · Local Workspace",
       "fit": "contain"
     }
   }

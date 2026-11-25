@@ -38,7 +38,7 @@ docs/
 
 **首頁歡迎頁**的文案放在 `mission.json` 和 `research-news.json`。`welcome-content.ts` 驗證兩份資料、檢查站內封面檔案並按日期排列新聞。`ResearchNews` 決定頭條與清單，`NewsCover` 決定頭條使用專屬封面或預設插圖。`ForwardFigure` 控制首屏版面，`ForwardDiagram` 負責 SVG 與循環動畫；兩者的樣式隨元件維護。
 
-**分類登記檔** `src/data/collection-groups.json` 以有序的 id/label 對定義三個分組：`models`、`tasks`、`applications`。分組只供顯示，沒有對應頁面。**產品檔**以穩定識別碼命名，例如 `products/<product-id>.mdx`，其網址為 `/products/<product-id>/`。目前收錄正式模型 **SurvTFM**（`v0.6.3`，屬 `models` 組，依 `models` 專屬元信息協議填寫 `model:` 區塊）與教學示範 **Batch Error**（屬 `tasks` 與 `applications` 組，標註 `demo: true`）。
+**分類登記檔** `src/data/collection-groups.json` 以有序的 id/label 對定義三個分組：`models`、`tasks`、`applications`。分組只供顯示，沒有對應頁面。**產品檔**以穩定識別碼命名，例如 `products/<product-id>.mdx`，其網址為 `/products/<product-id>/`。目前收錄正式模型 **SurvTFM**（屬 `models` 組，依 `models` 專屬元信息協議填寫 `model:` 區塊）與教學示範 **Batch Error**（屬 `tasks` 與 `applications` 組，標註 `demo: true`）。
 
 歸屬只在產品檔開頭的 `collections` 欄位登記。例如 `collections: [tasks, applications]` 表示兩組都要列出該產品。Astro 建置時依登記檔的順序分組產生側欄與 Overview 目錄，連結直接指向產品頁；分組沒有自己的頁面，也就無須在別處抄產品名單。Overview 內嵌的 Quickstart（Iris 例）介紹共同的入門操作，每項產品的具體用法則寫在自己的 `## Tutorial`。
 

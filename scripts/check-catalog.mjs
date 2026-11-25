@@ -40,12 +40,15 @@ for (const id of records) {
   const meta = parseYaml(match[1]);
 
   // Common required product identity fields.
-  for (const key of ['title', 'description', 'maintainer', 'source', 'release']) {
+  for (const key of ['title', 'description', 'maintainer', 'source']) {
     require(isNonEmptyString(meta[key]), `missing ${key}`);
   }
   require(['Preview', 'Released', 'Archived'].includes(meta.status), 'unknown publication status');
 
   // Optional common fields (validated when present).
+  if (meta.release !== undefined) {
+    require(isNonEmptyString(meta.release), 'release must be a non-empty string when provided');
+  }
   if (meta.access !== undefined) {
     require(isNonEmptyString(meta.access), 'access must be a non-empty string when provided');
   }

@@ -191,13 +191,6 @@ a {
 }
 
 /* ---- Hero Foreground Typography ---- */
-.folio {
-  margin: 0;
-  font: 600 0.7rem / 1.4 var(--mono);
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-}
-
 h1 {
   margin: 0 0 0.9rem;
   font: 400 clamp(3.35rem, 5.4vw, 5.35rem) / 0.96 var(--serif);
@@ -314,10 +307,6 @@ h1 em {
   gap: 0.5rem clamp(1rem, 2.8vw, 2.5rem);
   padding: 1.25rem 0 1.65rem;
   border-top: 1px solid var(--ink);
-}
-
-.section-rule .folio {
-  color: var(--crimson);
 }
 
 .section-rule h2 {
