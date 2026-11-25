@@ -39,7 +39,7 @@
   - **components/** — 區塊與互動元件
     - [Header.astro](../src/components/Header.astro) — 覆寫 Starlight 頁首：品牌、三個區段連結、搜尋與主題切換；頁內 `<script>` 匯入 legacy-bookmarks，在首頁依 hash 同步導覽並把舊書籤轉址。載入：astro.config.mjs 的 `components.Header`。
     - [DocContent.astro](../src/components/DocContent.astro) — 覆寫 Starlight 的 MarkdownContent：`products/` 開頭的頁面在正文前插入 ProductDetails，其餘照常渲染。載入：astro.config.mjs 的 `components.MarkdownContent`。
-    - [Sidebar.astro](../src/components/Sidebar.astro) — 覆寫 Starlight 側欄：沿設定檔的 sidebar 段渲染，但 `Collections` 段不用設定檔 items，改以 getProductGroups() 依登記檔順序列出分組標籤與產品直連（`/products/<id>/`；Collections 與組內產品清單預設收合，點選對應標題後展開），其餘段交回 Starlight 的 SidebarSublist；自帶側欄樣式。讀：src/data/product-groups.ts。載入：astro.config.mjs 的 `components.Sidebar`。
+    - [Sidebar.astro](../src/components/Sidebar.astro) — 覆寫 Starlight 側欄：沿設定檔的 sidebar 段渲染，但 `Collections` 段不用設定檔 items，改以 getProductGroups() 依登記檔順序列出分組標籤與產品直連（`/products/<id>/`；首次進入首頁時預設收合；進入產品頁後，側欄只展開並標示目前產品所在的一組），其餘段交回 Starlight 的 SidebarSublist；自帶側欄樣式。讀：src/data/product-groups.ts。載入：astro.config.mjs 的 `components.Sidebar`。
     - [ProductDirectory.astro](../src/components/ProductDirectory.astro) — 首頁 `#collections` 區段的產品目錄：按 getProductGroups() 分組渲染產品標題連結與描述，空組顯示佔位文字。被讀：index.mdx 匯入。
     - [ProductDetails.astro](../src/components/ProductDetails.astro) — 產品頁的事實卡：維護者、版本、交付、存取，所屬分組由 `data.collections` 對照登記檔標籤後以純文字標籤顯示（分組沒有頁面可連），並把 `source` 轉成下載鈕（`/` 開頭路徑下載、`http` 開頭開外部連結）。讀：src/data/collection-groups.json。被讀：DocContent。
     - [LegacyArticle.astro](../src/components/LegacyArticle.astro) — 把 `legacyArticles[id]` 渲染成完整文章：自帶目錄、章節、程式碼格、來源清單與 `.ipynb` 下載鈕（連到 `/downloads/<id>.ipynb`）。讀：src/data/legacy-articles.ts。被讀：quickstart.mdx 與 examples/ 三頁匯入。
@@ -82,7 +82,7 @@
 2. `npm run build` 先跑 [check-catalog.mjs](../scripts/check-catalog.mjs)：欄位齊全、兩個分組 ID 都在登記檔、`/demos/batch-error.py` 真的在 `public/`、`## Tutorial` 恰一個且有步驟。不通過就不建置。
 3. Astro 建 `products/batch-error/` 頁時，Starlight 用 [astro.config.mjs](../astro.config.mjs) 註冊的覆寫把正文交給 [DocContent.astro](../src/components/DocContent.astro)：開頭插入 [ProductDetails](../src/components/ProductDetails.astro)——它對照登記檔把所屬分組寫成純文字標籤，並把 `source` 轉成下載鈕。
 4. 建置時，[BatchErrorPlot.tsx](../src/components/BatchErrorPlot.tsx) 先產生滑桿和圖形的 HTML；`client:visible` 讓瀏覽器在圖表進入畫面時接上 React 互動。改外觀則看旁邊的 [BatchErrorPlot.css](../src/components/BatchErrorPlot.css)。
-5. 讀者在首頁 `#collections` 目錄的 Tasks 與 Applications 兩組、以及側欄的對應分組都會看到 Batch Error，連結直接指向 `/products/batch-error/`，中間沒有分類頁；舊網址 `/collections/statistics/` 由 [collections/[id].astro](../src/pages/collections/%5Bid%5D.astro) 轉到 `/#collections`。
+5. 讀者在首頁 `#collections` 目錄的 Tasks 與 Applications 兩組、以及側欄的對應分組都會看到 Batch Error，連到同一個 `/products/batch-error/`，網址的 `?group=tasks` 或 `?group=applications` 讓側欄知道應標示哪個入口。直接開啟沒有分組參數的產品頁時，選用該產品在目錄中的第一組；舊網址 `/collections/statistics/` 由 [collections/[id].astro](../src/pages/collections/%5Bid%5D.astro) 轉到 `/#collections`。
 6. CI（[pages.yml](../.github/workflows/pages.yml)）建置後跑 [check-demos.py](../scripts/check-demos.py)：用頁面圍欄裡的輸入執行 `dist/demos/batch-error.py`，輸出 JSON 必須等於頁面上的預期輸出，才部署 `dist/`。
 
 ## 走讀二：一份文章資料如何同時產生網頁與 Notebook

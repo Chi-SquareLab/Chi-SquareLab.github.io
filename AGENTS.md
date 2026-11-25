@@ -61,6 +61,8 @@
 
 **產品分類決策**：Collection 是可擴充的一級產品分類；同一產品直接列在所有適用分類，不設主分類。分類僅供顯示：`src/data/collection-groups.json` 以有序 id/label 對登記 `models`、`tasks`、`applications` 三組，沒有分類頁面；首頁 `#collections` 目錄與側欄直接連到產品頁，產品頁上的分組以純文字顯示，舊 `/collections/<id>/` 網址轉址到 `/#collections`。每個收錄產品的使用教學必須寫在產品頁內，跨類共用同一頁；版本與發布資訊維護在同一產品紀錄，詳見[研究產品定位與分類規範](docs/product-protocol.md)。
 
+**側欄定位**：進入產品頁時展開並標示該產品所在的分組。跨組產品由首頁或側欄連結的 `?group=` 保留讀者選擇的入口；沒有有效入口時取目錄中第一個符合的組。這個顯示順序不改變產品歸屬。
+
 **撰稿位置**：分組的 id 與英文標籤登記於 `src/data/collection-groups.json`。從[產品範本](docs/templates/product.mdx) 建立 `src/content/docs/products/<product-id>.mdx`，以該檔的 `collections` 欄位列出全部適用分組，並在同檔完成 `## Tutorial`。教學腳本以 `demo: true` 標示；第三方模型及純方法案例保留原始歸屬。
 
 **重構紀錄（顯示分組）**：初版以三個 collection 定義頁（`src/content/docs/collections/` 的 domain、statistics、science）作為讀者入口；第 1–3、5 節的讀者實驗設計即以該入口為對象，相關敘述為歷史紀錄。現行網站改為純顯示分組（models、tasks、applications），舊分類網址轉址至 `/#collections`；Quickstart、參考案例頁與 Notebook 下載不受此重構影響。

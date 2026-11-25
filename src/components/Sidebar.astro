@@ -8,6 +8,8 @@ import { getProductGroups } from '../data/product-groups';
 
 const { sidebar, id: currentId } = Astro.locals.starlightRoute;
 const groups = await getProductGroups();
+// For a direct visit, show the first matching group in directory order.
+const defaultGroup = groups.find(({ products }) => products.some(({ id }) => id === currentId));
 
 type SidebarEntry = (typeof sidebar)[number];
 function hasCurrentLink(entries: SidebarEntry[]): boolean {
@@ -38,11 +40,11 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
       }
 
       const isCollections = entry.label === 'Collections';
-      const open = !entry.collapsed || hasCurrentLink(entry.entries);
+      const open = !entry.collapsed || hasCurrentLink(entry.entries) || (isCollections && !!defaultGroup);
       return (
         <li>
           <details open={open}>
-            <summary class="section-label">
+            <summary class="section-label" aria-current={isCollections && defaultGroup ? 'location' : undefined}>
               <span>
                 {entry.label}
                 {entry.badge && <Badge text={entry.badge.text} variant={entry.badge.variant} class={entry.badge.class} />}
@@ -57,20 +59,21 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
                   return (
                     <li>
                       {products.length > 0 ? (
-                        <details>
-                          <summary class="collection-label" id={labelId}>
+                        <details data-product-group={id} open={defaultGroup?.id === id}>
+                          <summary class="collection-label" id={labelId} aria-current={defaultGroup?.id === id ? 'location' : undefined}>
                             {label}<Icon name="right-caret" class="caret" size="1rem" />
                           </summary>
                           <ul class="product-links" aria-labelledby={labelId} role="list">
-                          {products.map((product) => (
-                            <li>
-                              <a
-                                class="sidebar-link"
-                                href={`/${product.id}/`}
-                                aria-current={product.id === currentId ? 'page' : undefined}
-                              >{product.data.title}</a>
-                            </li>
-                          ))}
+                            {products.map((product) => (
+                              <li>
+                                <a
+                                  class="sidebar-link"
+                                  href={product.href}
+                                  data-current-product={product.id === currentId ? '' : undefined}
+                                  aria-current={product.id === currentId && defaultGroup?.id === id ? 'page' : undefined}
+                                >{product.data.title}</a>
+                              </li>
+                            ))}
                           </ul>
                         </details>
                       ) : <p class="collection-label">{label}</p>}
@@ -89,6 +92,29 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
     })}
   </ul>
 </SidebarPersister>
+
+{defaultGroup && <script is:inline>
+  // The static page is shared by all entry points. Resolve its branch after
+  // Starlight restores the outer disclosure and before the sidebar is painted.
+  const currentLinks = [...document.querySelectorAll('.sidebar-list [data-current-product]')];
+  const groupOf = link => link.closest('[data-product-group]');
+  const requested = new URLSearchParams(location.search).get('group');
+  const selected = currentLinks.find(link => groupOf(link).dataset.productGroup === requested) || currentLinks[0];
+  for (const link of currentLinks) {
+    const active = link === selected;
+    const group = groupOf(link);
+    group.open = active;
+    const label = group.querySelector('summary');
+    if (active) {
+      group.parentElement.closest('details').open = true;
+      label.setAttribute('aria-current', 'location');
+      link.setAttribute('aria-current', 'page');
+    } else {
+      label.removeAttribute('aria-current');
+      link.removeAttribute('aria-current');
+    }
+  }
+</script>}
 
 <div class="md:sl-hidden"><MobileMenuFooter /></div>
 
@@ -182,6 +208,11 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
 
   .sidebar-link:hover {
     text-decoration: underline;
+  }
+
+  summary[aria-current='location'] {
+    color: var(--sl-color-text-accent);
+    font-weight: 700;
   }
 
   .sidebar-link[aria-current='page'] {

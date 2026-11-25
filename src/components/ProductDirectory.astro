@@ -18,7 +18,7 @@ const groups = await getProductGroups();
           <ul role="list">
             {products.map((product) => (
               <li>
-                <a href={`/${product.id}/`}>{product.data.title}</a>
+                <a href={product.href}>{product.data.title}</a>
                 {product.data.description && <p>{product.data.description}</p>}
               </li>
             ))}
