@@ -39,7 +39,7 @@
   - **components/** — 區塊與互動元件
     - [Header.astro](../src/components/Header.astro) — 覆寫 Starlight 頁首：品牌、三個區段連結、搜尋與主題切換；頁內 `<script>` 匯入 legacy-bookmarks，在首頁依 hash 同步導覽並把舊書籤轉址。載入：astro.config.mjs 的 `components.Header`。
     - [DocContent.astro](../src/components/DocContent.astro) — 覆寫 Starlight 的 MarkdownContent：`products/` 開頭的頁面在正文前插入 ProductDetails，其餘照常渲染。載入：astro.config.mjs 的 `components.MarkdownContent`。
-    - [Sidebar.astro](../src/components/Sidebar.astro) — 覆寫 Starlight 側欄：沿設定檔的 sidebar 段渲染，但 `Collections` 段不用設定檔 items，改以 getProductGroups() 依登記檔順序列出分組標籤與產品直連（`/products/<id>/`；當前頁是列出的產品時展開），其餘段交回 Starlight 的 SidebarSublist；自帶側欄樣式。讀：src/data/product-groups.ts。載入：astro.config.mjs 的 `components.Sidebar`。
+    - [Sidebar.astro](../src/components/Sidebar.astro) — 覆寫 Starlight 側欄：沿設定檔的 sidebar 段渲染，但 `Collections` 段不用設定檔 items，改以 getProductGroups() 依登記檔順序列出分組標籤與產品直連（`/products/<id>/`；Collections 與組內產品清單預設收合，點選對應標題後展開），其餘段交回 Starlight 的 SidebarSublist；自帶側欄樣式。讀：src/data/product-groups.ts。載入：astro.config.mjs 的 `components.Sidebar`。
     - [ProductDirectory.astro](../src/components/ProductDirectory.astro) — 首頁 `#collections` 區段的產品目錄：按 getProductGroups() 分組渲染產品標題連結與描述，空組顯示佔位文字。被讀：index.mdx 匯入。
     - [ProductDetails.astro](../src/components/ProductDetails.astro) — 產品頁的事實卡：維護者、版本、交付、存取，所屬分組由 `data.collections` 對照登記檔標籤後以純文字標籤顯示（分組沒有頁面可連），並把 `source` 轉成下載鈕（`/` 開頭路徑下載、`http` 開頭開外部連結）。讀：src/data/collection-groups.json。被讀：DocContent。
     - [LegacyArticle.astro](../src/components/LegacyArticle.astro) — 把 `legacyArticles[id]` 渲染成完整文章：自帶目錄、章節、程式碼格、來源清單與 `.ipynb` 下載鈕（連到 `/downloads/<id>.ipynb`）。讀：src/data/legacy-articles.ts。被讀：quickstart.mdx 與 examples/ 三頁匯入。

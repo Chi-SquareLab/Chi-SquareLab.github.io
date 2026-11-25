@@ -8,7 +8,6 @@ import { getProductGroups } from '../data/product-groups';
 
 const { sidebar, id: currentId } = Astro.locals.starlightRoute;
 const groups = await getProductGroups();
-const hasCurrentProduct = groups.some(({ products }) => products.some(({ id }) => id === currentId));
 
 type SidebarEntry = (typeof sidebar)[number];
 function hasCurrentLink(entries: SidebarEntry[]): boolean {
@@ -39,7 +38,7 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
       }
 
       const isCollections = entry.label === 'Collections';
-      const open = !entry.collapsed || (isCollections ? hasCurrentProduct : hasCurrentLink(entry.entries));
+      const open = !entry.collapsed || hasCurrentLink(entry.entries);
       return (
         <li>
           <details open={open}>
@@ -57,9 +56,12 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
                   const labelId = `sidebar-group-${id}`;
                   return (
                     <li>
-                      <p class="collection-label" id={labelId}>{label}</p>
-                      {products.length > 0 && (
-                        <ul class="product-links" aria-labelledby={labelId} role="list">
+                      {products.length > 0 ? (
+                        <details>
+                          <summary class="collection-label" id={labelId}>
+                            {label}<Icon name="right-caret" class="caret" size="1rem" />
+                          </summary>
+                          <ul class="product-links" aria-labelledby={labelId} role="list">
                           {products.map((product) => (
                             <li>
                               <a
@@ -69,8 +71,9 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
                               >{product.data.title}</a>
                             </li>
                           ))}
-                        </ul>
-                      )}
+                          </ul>
+                        </details>
+                      ) : <p class="collection-label">{label}</p>}
                     </li>
                   );
                 })}

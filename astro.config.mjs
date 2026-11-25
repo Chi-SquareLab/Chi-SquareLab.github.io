@@ -27,7 +27,7 @@ export default defineConfig({
       sidebar: [
         { label: 'Getting Started', items: [{ label: 'Homepage', link: '/' }, { slug: 'quickstart' }] },
         // Sidebar.astro fills this section from the products' collection memberships.
-        { label: 'Collections', items: [] },
+        { label: 'Collections', collapsed: true, items: [] },
         { label: 'Reference', items: [{ slug: 'reference/model-architecture' }, { slug: 'reference/reading-list' }] },
       ],
     }),
