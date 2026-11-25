@@ -1,7 +1,6 @@
 // The prototype used /#route and /#route/section instead of page URLs.
 const pages: Record<string, string> = {
   overview: '/',
-  quickstart: '/quickstart/',
   domain: '/#collections',
   statistics: '/#collections',
   science: '/#collections',
@@ -10,6 +9,8 @@ const pages: Record<string, string> = {
 };
 
 export function legacyBookmarkTarget(route: string, section?: string): string | undefined {
+  // #quickstart now names a real section. Only translate its old nested links.
+  if (route === 'quickstart') return section ? `/#${encodeURIComponent(section)}` : undefined;
   if (!Object.hasOwn(pages, route)) return undefined;
 
   const path = section && ['domain', 'statistics', 'science'].includes(route)

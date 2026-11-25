@@ -25,13 +25,14 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
       if (entry.type === 'link') {
         const { class: linkClass, ...attrs } = entry.attrs;
         return (
-          <li>
+          <li class:list={{ 'overview-item': entry.href === '/' }}>
             <a
               href={entry.href}
               aria-current={entry.isCurrent ? 'page' : undefined}
               class:list={['sidebar-link', 'section-label', linkClass]}
               {...attrs}
             >
+              {entry.href === '/' && <Icon name="open-book" size="16px" />}
               {entry.label}
               {entry.badge && <Badge text={entry.badge.text} variant={entry.badge.variant} class={entry.badge.class} />}
             </a>
@@ -135,6 +136,18 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
 
   .sidebar-list > li + li {
     margin-block-start: 0.75rem;
+  }
+
+  .sidebar-list .overview-item + li {
+    margin-block-start: 1.125rem;
+  }
+
+  .overview-item > .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-block: 0.45rem;
+    border-radius: 0.5rem;
   }
 
   .section-label,

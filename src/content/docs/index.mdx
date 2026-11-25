@@ -1,67 +1,90 @@
 ---
-title: Homepage
-description: Browse models, tasks, and applications for tabular data, with access details and a tutorial for each product.
+title: Overview
+description: Learn how tabular foundation models make predictions, try an Iris example, and browse products for statistics and science.
 template: doc
-tableOfContents: false
-hero:
-  title: |-
-    <span class="tabula-hero__brand" aria-hidden="true"><img src="/assets/atlas.svg" width="28" height="28" alt=""> Tabula <span>Research handbook</span></span>
-    <span class="tabula-hero__headline">Tabular foundation models for statistics &amp; science</span>
-  tagline: Explore models, tasks, and applications for tabular data.
-  image:
-    html: |-
-      <figure class="tabula-hero__figure">
-        <figcaption>Model sketch</figcaption>
-        <img src="/assets/context.svg" width="225" height="148" alt="Labeled context rows and unlabeled query features go into a model, which returns a prediction.">
-      </figure>
-  actions:
-    - text: Browse products
-      link: /#collections
-      icon: down-arrow
-      attrs:
-        class: tabula-button tabula-button--primary
-    - text: Quickstart
-      link: /quickstart/
-      variant: secondary
-      icon: right-arrow
-      attrs:
-        class: tabula-button tabula-button--secondary
+tableOfContents:
+  maxHeadingLevel: 2
 ---
 
-import { Icon } from '@astrojs/starlight/components';
+import { CardGrid, Code, LinkCard } from '@astrojs/starlight/components';
 import ProductDirectory from '../../components/ProductDirectory.astro';
+import { legacyArticles, quickstartCode } from '../../data/legacy-articles';
 
-<div class="tabula-home not-content">
-  <ProductDirectory />
+export const iris = legacyArticles.quickstart;
+export const notebookUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/downloads/quickstart.ipynb`;
 
-  <section class="tabula-notes" aria-labelledby="tabula-notes-title">
-    <div class="tabula-section-heading">
-      <div>
-        <h2 id="tabula-notes-title">Site notes</h2>
-        <p>Read how the models work and trace the sources behind the tutorials.</p>
-      </div>
-    </div>
-    <ul class="tabula-note-grid" role="list">
-      <li>
-        <a class="tabula-note" href="/reference/model-architecture/" aria-labelledby="tabula-note-architecture">
-          <span class="tabula-note__icon"><Icon name="list-format" /></span>
-          <div>
-            <h3 id="tabula-note-architecture">Model architecture</h3>
-            <p>Follow context rows and query features through a prediction.</p>
-          </div>
-          <Icon name="right-arrow" class="rtl:flip" />
-        </a>
-      </li>
-      <li>
-        <a class="tabula-note" href="/reference/reading-list/" aria-labelledby="tabula-note-reading-list">
-          <span class="tabula-note__icon"><Icon name="open-book" /></span>
-          <div>
-            <h3 id="tabula-note-reading-list">Reading list</h3>
-            <p>Find upstream implementations, papers, and evaluation guides.</p>
-          </div>
-          <Icon name="right-arrow" class="rtl:flip" />
-        </a>
-      </li>
-    </ul>
-  </section>
-</div>
+Use Tabula to understand tabular foundation models, [try a prediction](#quickstart), and [find tools for statistics and science](#collections).
+
+## What is a TFM?
+
+A **tabular foundation model (TFM)** learns from many prediction tasks during pretraining and can then make predictions on a new table.
+
+To identify an iris species with an in-context model like TabPFN, give it flower measurements paired with known species (the **context**). Then give it the same kinds of measurements for a new flower whose species you want to predict (the **query**). The model uses the labeled examples to interpret the new row.
+
+## What can a TFM do?
+
+- **Classification:** Predict a category, such as an iris species. Some models return a probability for each class.
+- **Regression:** Predict a number, such as material strength from processing conditions.
+- **Uncertainty:** Some models estimate quantiles that can form a prediction interval. Check probability calibration or interval coverage on held-out data that reflect how you plan to use the model.
+
+<details id="quickstart" class="tabula-quickstart">
+  <summary>Quickstart: classify Iris with TabPFN</summary>
+  <p id="s0">Install TabPFN and scikit-learn with Python 3.10 or later.</p>
+  <Code lang="sh" code="python -m pip install tabpfn==9.0.0 scikit-learn" />
+  <p>On first use, TabPFN downloads its model weights. Sign in with Prior Labs and accept the <a href="https://github.com/PriorLabs/TabPFN/tree/v9.0.0#license">model weight terms</a> to get access.</p>
+  <p id="s1">Supply the training rows to <code>fit</code>, then predict class probabilities for the held-out rows.</p>
+  <Code lang="python" title="Iris classification" code={`${quickstartCode}\n\n${iris.sections[2].code}`} />
+  <p id="s2">The example prints the class order, the shape of the probability matrix, and the probabilities for the first held-out iris.</p>
+  <p id="sources">
+    <a href={notebookUrl} download="tabula-quickstart.ipynb">Download the Iris notebook (.ipynb)</a>
+    {' · '}
+    <a href={iris.sources[0].url}>TabPFN docs</a>
+    {' · '}
+    <a href={iris.sources[1].url}>Iris dataset</a>
+  </p>
+</details>
+
+## <span id="collections" aria-hidden="true" />Our products
+
+Browse our instructional demos. Each product page includes access details and a tutorial.
+
+<ProductDirectory />
+
+## Next steps
+
+<CardGrid>
+  <LinkCard
+    title="Model architecture"
+    description="Follow context rows and query features through a prediction."
+    href="/reference/model-architecture/"
+  />
+  <LinkCard
+    title="Reading list"
+    description="Find upstream implementations, papers, and evaluation guides."
+    href="/reference/reading-list/"
+  />
+</CardGrid>
+
+<script>
+  {`
+    (() => {
+      const quickstart = document.getElementById('quickstart');
+
+      function revealQuickstart() {
+        let id;
+        try {
+          id = decodeURIComponent(window.location.hash.slice(1));
+        } catch {
+          return;
+        }
+        const target = document.getElementById(id);
+        if (!target || !quickstart?.contains(target)) return;
+        quickstart.open = true;
+        target.scrollIntoView();
+      }
+
+      revealQuickstart();
+      window.addEventListener('hashchange', revealQuickstart);
+    })();
+  `}
+</script>

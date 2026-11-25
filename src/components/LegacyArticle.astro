@@ -4,7 +4,7 @@ import { Code, LinkButton } from '@astrojs/starlight/components';
 import { legacyArticles, type LegacyArticleData, type LegacyArticleId } from '../data/legacy-articles.ts';
 
 interface Props {
-  id: LegacyArticleId;
+  id: Exclude<LegacyArticleId, 'quickstart'>;
 }
 
 const { id } = Astro.props;
@@ -20,7 +20,7 @@ const sections = article.sections.map((section, index) => ({
 }));
 ---
 
-{id !== 'quickstart' && <p><strong>Worked method example · Simulated data.</strong> This walkthrough is part of the reference library and is outside the product catalog.</p>}
+<p><strong>Worked method example · Simulated data.</strong> This walkthrough is part of the reference library and is outside the product catalog.</p>
 <p>{article.intro}</p>
 <LinkButton href={`${base}/downloads/${id}.ipynb`} download={filename} icon="download" variant="secondary">
   Download notebook (.ipynb)
@@ -36,11 +36,10 @@ const sections = article.sections.map((section, index) => ({
 </nav>
 
 {
-  sections.map(({ anchor, title, text, code, cell }, index) => (
+  sections.map(({ anchor, title, text, code, cell }) => (
     <>
       <AnchorHeading level={2} id={anchor}>{title}</AnchorHeading>
       <p>{text}</p>
-      {index === 0 && <slot name="setup" />}
       {code && <Code lang="python" code={code} title={`In [${cell}] · Python`} />}
     </>
   ))

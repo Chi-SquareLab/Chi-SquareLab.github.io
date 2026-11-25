@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Quickstart moved to Overview | Tabula</title>
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={new URL('/', Astro.site)} />
+    <script is:inline>
+      const section = ['#s0', '#s1', '#s2', '#sources'].includes(location.hash) ? location.hash : '#quickstart';
+      location.replace('/' + section);
+    </script>
+    <noscript><meta http-equiv="refresh" content="0;url=/#quickstart" /></noscript>
+  </head>
+  <body><p>The Quickstart is now part of <a href="/#quickstart">Overview</a>.</p></body>
+</html>

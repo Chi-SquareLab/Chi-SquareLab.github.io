@@ -3,7 +3,7 @@ import Search from '@astrojs/starlight/components/Search.astro';
 import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro';
 
 const links = [
-  ['Getting Started', '/quickstart/'],
+  ['Overview', '/'],
   ['Collections', '/#collections'],
   ['Reference', '/reference/model-architecture/'],
 ];
@@ -11,7 +11,7 @@ const links = [
 function currentSection(path: string) {
   if (/^\/(products|collections)\//.test(path)) return 'Collections';
   if (/^\/(examples|reference)\//.test(path)) return 'Reference';
-  return 'Getting Started';
+  return path === '/' ? 'Overview' : undefined;
 }
 
 const path = Astro.url.pathname;
@@ -32,11 +32,12 @@ const section = currentSection(path);
   function syncHomeNavigation() {
     if (location.pathname !== '/') return;
     const [route, part] = location.hash.slice(1).split('/');
+    const inDirectory = route === 'collections' || route === 'our-products';
     const navLinks = document.querySelectorAll<HTMLAnchorElement>('nav[data-root-nav] a');
     for (const link of navLinks) {
-      const active = route === 'collections'
+      const active = inDirectory
         ? link.hash === '#collections'
-        : link.pathname === '/quickstart/';
+        : link.pathname === '/' && !link.hash;
       if (active) link.setAttribute('aria-current', 'location');
       else link.removeAttribute('aria-current');
     }
