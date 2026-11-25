@@ -34,9 +34,9 @@ In the preview, open the Overview at `/` and jump to `#collections`. Follow **Ap
 1. Check the [product protocol](docs/product-protocol.md). Copy the [English template](docs/templates/product.mdx) to `src/content/docs/products/<stable-id>.mdx`. Keep the filename when updating the name or release.
 2. Set `collections` to every applicable group ID from the [collection registry](src/data/collection-groups.json) (`models`, `tasks`, `applications`). Membership is recorded only here. Fill in the maintainer, source, release, delivery format and access terms. Set `demo: true` for an instructional demo.
 3. In `## Tutorial`, walk through access, a concrete input, the operation and its expected output. Run the example before submitting it. Link supplementary downloads from the same page.
-4. Run `npm run check:catalog` to check membership against the registry, metadata, local source paths and tutorial presence. Run `npm run build`, then check the rendered page and its entry under each listed group in the homepage directory and sidebar. After changing either included demo, run `python scripts/check-demos.py` to compare the shipped script’s output with its tutorial.
+4. Run `npm run check:catalog` to check membership against the registry, metadata, local source paths and tutorial presence. Run `npm run build`, then check the rendered page and its entry under each listed group in the Overview's Our products directory and the sidebar. After changing either included demo, run `python scripts/check-demos.py` to compare the shipped script’s output with its tutorial.
 
-To add a fourth collection, add its ID and label to [src/data/collection-groups.json](src/data/collection-groups.json) in display order, then add the new ID to the relevant products. The sidebar and homepage directory derive from the registry and the products’ `collections` field; there is no collection page to write.
+To add a fourth collection, add its ID and label to [src/data/collection-groups.json](src/data/collection-groups.json) in display order, then add the new ID to the relevant products. The sidebar and the Overview's Our products directory derive from the registry and the products’ `collections` field; there is no collection page to write.
 
 ## Where to make changes
 
