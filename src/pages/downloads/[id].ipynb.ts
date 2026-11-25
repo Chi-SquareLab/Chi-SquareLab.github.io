@@ -1,8 +1,8 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
-import { legacyArticles, type LegacyArticleData } from '../../data/legacy-articles.ts';
+import { notebookArticles, type NotebookArticle } from '../../data/notebook-articles.ts';
 
 export const getStaticPaths: GetStaticPaths = () =>
-  Object.entries(legacyArticles).map(([id, article]) => ({
+  Object.entries(notebookArticles).map(([id, article]) => ({
     params: { id },
     props: { article },
   }));
@@ -11,7 +11,7 @@ function markdown(source: string) {
   return { cell_type: 'markdown', metadata: {}, source: [source] };
 }
 
-export const GET: APIRoute<{ article: LegacyArticleData }> = ({ props: { article } }) => {
+export const GET: APIRoute<{ article: NotebookArticle }> = ({ props: { article } }) => {
   const cells = [
     markdown(`# ${article.title}\n\n${article.intro}`),
     ...article.sections.flatMap(({ title, text, code }) => [

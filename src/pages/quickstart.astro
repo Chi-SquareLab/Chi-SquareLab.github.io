@@ -1,15 +1,20 @@
+---
+import { overviewPath, quickstartSectionIds } from '../navigation/legacy-bookmarks';
+
+const quickstartTarget = `${overviewPath}#quickstart`;
+---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <title>Quickstart moved to Overview | Tabula</title>
     <meta name="robots" content="noindex" />
-    <link rel="canonical" href={new URL('/', Astro.site)} />
-    <script is:inline>
-      const section = ['#s0', '#s1', '#s2', '#sources'].includes(location.hash) ? location.hash : '#quickstart';
-      location.replace('/' + section);
+    <link rel="canonical" href={new URL(overviewPath, Astro.site)} />
+    <script define:vars={{ overviewPath, quickstartTarget, quickstartSectionIds }}>
+      const section = location.hash.slice(1);
+      location.replace(quickstartSectionIds.includes(section) ? `${overviewPath}#${section}` : quickstartTarget);
     </script>
-    <noscript><meta http-equiv="refresh" content="0;url=/#quickstart" /></noscript>
+    <noscript><meta http-equiv="refresh" content={`0;url=${quickstartTarget}`} /></noscript>
   </head>
-  <body><p>The Quickstart is now part of <a href="/#quickstart">Overview</a>.</p></body>
+  <body><p>The Quickstart is now part of <a href={quickstartTarget}>Overview</a>.</p></body>
 </html>

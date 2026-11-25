@@ -1,97 +1,99 @@
-# 程式碼導讀（code map）
+# 我要改網站的哪個檔案？
 
-本頁寫給要讀或改這個網站的程式設計師：先沿目錄樹逐層看每個檔案的職責與依賴，再用兩條走讀把資料流走一遍。撰稿與收錄規則在[內容架構](architecture.md)，日常指令與部署在[開發者 README](../README.md)。
+**改首頁歡迎頁，打開 [index.astro](../src/pages/index.astro)；改文件 Overview，打開 [overview.mdx](../src/content/docs/overview.mdx)；改產品，打開 [products/](../src/content/docs/products/)；新增一般文章，放進 [reference/](../src/content/docs/reference/)。** `.mdx` 是這個網站用來寫頁面的文字檔。檔案開頭兩行 `---` 之間是頁面資料，例如標題 `title`；第二行 `---` 之後是讀者看到的正文。網站內容用英文撰寫。
 
-## 引用方式圖例
+## 修改現有內容
 
-看樹時問兩件事：這個檔案從哪裡取得資料？誰使用它的輸出？有時答案是一行 `import`，有時要看框架設定或頁面上的下載連結。
+| 我想改什麼？ | 開哪個檔案？ | 改哪裡？ |
+| --- | --- | --- |
+| 歡迎頁的標語、首屏文案或 GitHub 連結 | [index.astro](../src/pages/index.astro) | 找畫面上的原句，例如 `Learning from tables.` 或「Enter the tutorials」按鈕；版面樣式在 [welcome.css](../src/styles/welcome.css)，捲動與視差動效在 [welcome-motion.ts](../src/scripts/welcome-motion.ts)。 |
+| 歡迎頁使命聲明與三個研究理念區塊 | [mission.json](../src/data/mission.json) | 依 JSON 欄位編輯 `sectionTitle`、`statement`（`lead` 與 `emphasis`）、`paragraphs` 與 `pillars`（編號由陣列順序自動產生）；建置時驗證欄位，版面與背景 χ² 曲線動畫在 [MissionSection.astro](../src/components/welcome/MissionSection.astro)。 |
+| 歡迎頁的輸入表格、預測示意圖與循環動畫 | [ForwardDiagram.astro](../src/components/welcome/ForwardDiagram.astro) | SVG 和 9.6 秒循環的關鍵影格在同一檔。調整圖與標題在桌面、手機上的相對位置，改 [ForwardFigure.astro](../src/components/welcome/ForwardFigure.astro)。 |
+| 研究動態的新聞內容 | [research-news.json](../src/data/research-news.json) | 在陣列加一筆記錄，格式與排序約定見下方「新增一則研究動態」。 |
+| Overview 的介紹、TFM 說明、Iris 摺疊區塊的文字或底部連結 | [overview.mdx](../src/content/docs/overview.mdx) | 找畫面上的原句或標題，例如 `What can a TFM do?` 或 `Next steps`。 |
+| SurvTFM 或 Batch Error 的名稱、簡介、分組、使用教學 | [survtfm.mdx](../src/content/docs/products/survtfm.mdx) 或 [batch-error.mdx](../src/content/docs/products/batch-error.mdx) | `title` 是產品名，`description` 是 Overview 目錄也會顯示的簡介，`collections` 決定列在哪些組，`models` 產品另含 `model:` 身份卡欄位。操作步驟寫在 `## Tutorial`。 |
+| 閱讀清單的連結，或模型架構的說明 | [reading-list.mdx](../src/content/docs/reference/reading-list.mdx) 或 [model-architecture.mdx](../src/content/docs/reference/model-architecture.mdx) | 直接修改正文。 |
+| Iris 預測程式碼，或三篇方法案例的步驟、程式碼、來源 | [notebook-articles.ts](../src/data/notebook-articles.ts) | Iris 的預測程式找 `quickstartCode`；跨域案例找 `domain`，預測區間找 `statistics`，新批次評估找 `science`。頁面與下載的 Notebook 共用這些資料。 |
 
-- **匯入**：原始碼裡的 `import`，改路徑要同時改兩端。
-- **框架載入**：[astro.config.mjs](../astro.config.mjs) 的註冊（Starlight 元件覆寫、樣式、sidebar）或 [src/content.config.ts](../src/content.config.ts) 的 loader。檔名不出現在匯入端，容易漏改。
-- **內容查詢**：元件以 `getCollection('docs', …)` 在建置期依 `id` 前綴或 frontmatter 欄位篩選 MDX，不是匯入。
-- **靜態網址**：`public/` 內容原樣複製進 `dist/`，以 `/assets/…`、`/demos/…` 引用。
-- **建置／CI**：npm scripts、檢查腳本與 GitHub Actions 的呼叫順序。
+例如，你在 Overview 的 **Our products** 看到 Batch Error 的簡介需要更新：打開 [batch-error.mdx](../src/content/docs/products/batch-error.mdx)，改 `description` 即可。Overview 頁會讀取這個欄位。
 
-## 目錄樹
+## 修改畫面上的品牌、頂部導覽與左側選單
 
-版控中的每個檔案都在樹上（含本頁）；生成目錄見文末。
+**同樣是 `Overview`，有兩個來源：** 頂部橫列改 [Header.astro](../src/components/Header.astro) 的 `links`；左側選單第一項與正文上方的大標題都來自 [overview.mdx](../src/content/docs/overview.mdx) 的 `title`（側欄第一項在 [astro.config.mjs](../astro.config.mjs) 寫成 `{ slug: 'overview' }`，不另寫 label）。歡迎頁不套這套 Starlight 版型，品牌與導覽另有專檔，見表內前兩列的說明。
 
-- **根目錄**
-  - [package.json](../package.json) — 指令與相依：`dev`、`build`（先跑 check-catalog 再 `astro build`）、`preview`、`check:catalog`；Node ≥ 22.23.4。被讀：開發者與 CI。
-  - [package-lock.json](../package-lock.json) — 相依版本鎖定，讓 CI 的 `npm ci` 重現安裝。
-  - [astro.config.mjs](../astro.config.mjs) — 網站骨架：靜態輸出、KaTeX（remark-math＋rehype-katex）、Tailwind Vite 外掛、React 整合，以及 Starlight 設定——favicon `/assets/atlas.svg`、customCss（katex＋兩個本地樣式）、sidebar（頂層依序為連到 `/` 的 Overview、保持空 items 的 Collections 段——實際分組由 Sidebar 覆寫填入——與 Reference 兩頁）、把 `Header`、`MarkdownContent` 與 `Sidebar` 覆寫指向 `src/components/`。被讀：`astro dev/build/preview`。
-  - [tsconfig.json](../tsconfig.json) — Astro strict 基底加 React JSX 設定，供編輯器與型別檢查。
-  - [.gitignore](../.gitignore) — 排除生成物、環境與 Python 快取。
-  - [README.md](../README.md) — 開發者指南（英文）：預覽、撰稿、驗證、部署；開頭連到本頁。
-  - [AGENTS.md](../AGENTS.md) — 研究章程與維護決策（中文）；第 9 節要求檔案異動時同步更新本導讀。
-- **.github/workflows/**
-  - [pages.yml](../.github/workflows/pages.yml) — 「Publish Tabula」工作流程：`main` 推送或手動觸發；`npm ci` → `npm run build`（含型錄檢查）→ `python3 scripts/check-demos.py` → 上傳 `dist/` → 部署到 GitHub Pages（chi-squarelab.github.io）。
-- **docs/** — 維護文件，不參與建置
-  - [architecture.md](architecture.md) — 內容架構：讀者路徑、分類與產品檔的撰稿規則。
-  - [product-protocol.md](product-protocol.md) — 產品定位與分類判準（什麼算產品、歸哪幾類）。
-  - [templates/product.mdx](templates/product.mdx) — 新產品英文範本，複製到 `src/content/docs/products/` 後填寫。
-  - `code-map.md` — 本頁；由 README、architecture.md 與 AGENTS.md 連入。
-- **scripts/** — 建置期檢查
-  - [check-catalog.mjs](../scripts/check-catalog.mjs) — 跨檔編輯檢查：先驗證 `src/data/collection-groups.json` 的分組 id 與 label（格式、不重複、有標籤），再逐產品檢查 ID 格式、必填欄位、`collections` 指向登記檔內的分組且不重複、`source` 是 `public/` 內實際存在的檔案或 HTTP(S) 網址、恰一個 `## Tutorial` 且含步驟。讀：`src/data/collection-groups.json`、`src/content/docs/products/`、`public/`（直接讀檔案系統，不經 Astro）。被讀：package.json 的 `build` 與 `check:catalog`。
-  - [check-demos.py](../scripts/check-demos.py) — 建置後執行：從兩個產品頁的 `csv`／`json` 圍欄取出輸入與預期輸出，實際執行 `dist/demos/<demo>.py` 比對 JSON 是否一致。讀：`src/content/docs/products/*.mdx`、`dist/demos/*.py`。被讀：CI 工作流程。
-- **src/** — 網站原始碼
-  - [content.config.ts](../src/content.config.ts) — 定義兩個 collection：`docs`（docsLoader 載入 `src/content/docs/`，schema 擴充 `collections`、`delivery`、`maintainer`、`source`、`status`、`release`、`access`、`demo` 欄位）與 `i18n`（i18nLoader）。載入：Astro 內容層自動讀取。
-  - **components/** — 區塊與互動元件
-    - [Header.astro](../src/components/Header.astro) — 覆寫 Starlight 頁首：品牌、三個區段連結（Overview→`/`、Collections→`/#collections`、Reference）、搜尋與主題切換；頁內 `<script>` 匯入 legacy-bookmarks，在首頁依 hash 同步導覽（`#collections` 與 `#our-products` 視為目錄區段）並把舊書籤轉址。載入：astro.config.mjs 的 `components.Header`。
-    - [DocContent.astro](../src/components/DocContent.astro) — 覆寫 Starlight 的 MarkdownContent：`products/` 開頭的頁面在正文前插入 ProductDetails，其餘照常渲染。載入：astro.config.mjs 的 `components.MarkdownContent`。
-    - [Sidebar.astro](../src/components/Sidebar.astro) — 覆寫 Starlight 側欄：沿設定檔的 sidebar 段渲染，頂層連到 `/` 的 Overview 加圖示與專用樣式；`Collections` 段不用設定檔 items，改以 getProductGroups() 依登記檔順序列出分組標籤與產品直連（`/products/<id>/`；首次進入首頁時預設收合；進入產品頁後，側欄只展開並標示目前產品所在的一組），其餘段交回 Starlight 的 SidebarSublist；自帶側欄樣式。讀：src/data/product-groups.ts。載入：astro.config.mjs 的 `components.Sidebar`。
-    - [ProductDirectory.astro](../src/components/ProductDirectory.astro) — 首頁「Our products」區段的目錄本體：按 getProductGroups() 分組渲染各組標題與產品連結（多組產品帶 `?group=`）及描述，空組顯示佔位文字；區段 H2 與 `#collections` 別名錨點由 index.mdx 提供。被讀：index.mdx 匯入。
-    - [ProductDetails.astro](../src/components/ProductDetails.astro) — 產品頁的事實卡：維護者、版本、交付、存取，所屬分組由 `data.collections` 對照登記檔標籤後以純文字標籤顯示（分組沒有頁面可連），並把 `source` 轉成下載鈕（`/` 開頭路徑下載、`http` 開頭開外部連結）。讀：src/data/collection-groups.json。被讀：DocContent。
-    - [LegacyArticle.astro](../src/components/LegacyArticle.astro) — 把 `legacyArticles[id]`（型別排除 quickstart）渲染成完整文章：開頭示範案例聲明、自帶目錄、章節（`s0`… 錨點）、程式碼格、來源清單與 `.ipynb` 下載鈕（連到 `/downloads/<id>.ipynb`）。讀：src/data/legacy-articles.ts。被讀：examples/ 三頁匯入；Quickstart 紀錄改由首頁 index.mdx 內嵌渲染。
-    - [BatchErrorPlot.tsx](../src/components/BatchErrorPlot.tsx) — React 互動圖：滑桿改 batch B 的預測值，d3-scale 換算長度、GSAP 補間寬度，尊重 reduced-motion。讀：`./BatchErrorPlot.css`。被讀：products/batch-error.mdx 以 `client:visible` 掛載。
-    - [BatchErrorPlot.css](../src/components/BatchErrorPlot.css) — 上圖的專用樣式，與元件並列（自 utilities.css 移入）。被讀：BatchErrorPlot.tsx。
-  - **navigation/**
-    - [legacy-bookmarks.ts](../src/navigation/legacy-bookmarks.ts) — 原型時代 `/#route(/section)` 網址的純查詢對照表；帶 section 的分類路由對到 `/examples/<id>/#section`，不帶 section 的 domain/statistics/science 直接對到 `/#collections`，其餘對到新頁面；`#quickstart` 本身已是首頁實際區段（不轉址），僅 `#quickstart/<section>` 對到 `/#<section>`。無框架依賴。被讀：Header.astro 的 script。
-  - **data/**
-    - [collection-groups.json](../src/data/collection-groups.json) — 分類登記檔：有序的 id/label 對（models→Models、tasks→Tasks、applications→Applications），順序即側欄與首頁目錄的顯示順序；分組僅供顯示，沒有對應頁面。被讀：product-groups.ts 與 ProductDetails.astro（匯入）、check-catalog.mjs（建置前驗證）。
-    - [product-groups.ts](../src/data/product-groups.ts) — 匯出 `getProductGroups()`：內容查詢 `docs` 中 `products/` 前綴的產品（正式建置排除草稿），依標題排序後按各產品 `collections` 欄位分進登記檔各組，回傳「分組＋成員產品」給側欄與首頁共用。被讀：Sidebar.astro 與 ProductDirectory.astro。
-    - [legacy-articles.ts](../src/data/legacy-articles.ts) — Quickstart 與 domain、statistics、science 三篇方法案例的單一資料來源（簡介、章節、Python 程式、外部來源）。被讀：首頁 index.mdx（內嵌 Quickstart 的程式與來源）、LegacyArticle.astro 與 downloads 端點。
-  - **pages/** — 靜態路由，與 Starlight 內容頁並存
-    - [quickstart.astro](../src/pages/quickstart.astro) — 舊 `/quickstart/` 的轉址頁：內嵌 script 把 `#s0`、`#s1`、`#s2`、`#sources` 轉到首頁同 id 錨點，其餘（含無 hash）轉到 `/#quickstart`；無 JS 時退回 meta refresh 到 `/#quickstart`。noindex，canonical 指向 `/`。
-    - **collections/**
-      - [`[id].astro`](../src/pages/collections/%5Bid%5D.astro) — 舊分類網址的轉址頁：`getStaticPaths` 展開 domain、statistics、science 三個舊 ID，以 `<meta http-equiv="refresh">` 立即轉到 `/#collections`（noindex，canonical 指向首頁），舊書籤不失效。
-    - **downloads/**
-      - [`[id].ipynb.ts`](../src/pages/downloads/%5Bid%5D.ipynb.ts) — 靜態端點：`getStaticPaths` 以 legacy-articles 的 key 展開參數，`GET` 把同一筆紀錄組成 Jupyter notebook JSON，建置成 `/downloads/<id>.ipynb`。讀：src/data/legacy-articles.ts。
-  - **styles/** — 全站樣式
-    - [utilities.css](../src/styles/utilities.css) — 只剩 Tailwind 主題與工具層的匯入（互動圖樣式已移至 BatchErrorPlot.css）。載入：astro.config.mjs customCss。
-    - [tabula.css](../src/styles/tabula.css) — 品牌主題：CSS 變數、淺深色、首頁 Quickstart 摺疊區塊與 Our products 目錄、按鈕與產品事實卡。載入：同上。
-  - **content/docs/** — 英文頁面來源，由 Starlight 依檔案位置產生頁面，例如 `products/batch-error.mdx` 對應 `/products/batch-error/`
-    - [index.mdx](../src/content/docs/index.mdx) — 首頁 Overview（原生目錄至 H2）：依序為 TFM 介紹、能力、內嵌 Quickstart（`<details id="quickstart">` 摺疊區塊，內含 `s0`／`s1`／`s2`／`sources` 錨點、安裝與 Iris 程式及 Notebook 下載連結；頁內 script 依 hash 展開並捲動）、「Our products」（H2 `#our-products`，附 `#collections` 別名錨點；ProductDirectory）與 Next steps 卡片（連 Reference 兩頁）。匯入：ProductDirectory、legacy-articles（Quickstart 程式與來源）。
-    - [products/batch-error.mdx](../src/content/docs/products/batch-error.mdx) — 教學 demo 產品；`source: /demos/batch-error.py`、屬 tasks＋applications 兩組；匯入 BatchErrorPlot；內含 `csv`／`json` 圍欄供 check-demos.py 比對。
-    - [products/cooling-context.mdx](../src/content/docs/products/cooling-context.mdx) — 教學 demo 產品；`source: /demos/cooling-context.py`、屬 models 組；同樣含比對用圍欄。
-    - **examples/** — 三個頁面各把自己的 ID 傳給 LegacyArticle，從同一份資料取出不同文章：
-      - [domain.mdx](../src/content/docs/examples/domain.mdx) — 比較資料來源改變時的訓練方式。
-      - [statistics.mdx](../src/content/docs/examples/statistics.mdx) — 分開訓練、校準與評估資料，檢查預測區間。
-      - [science.mdx](../src/content/docs/examples/science.mdx) — 保留整個實驗批次，評估模型在新批次的誤差。
-    - [reference/model-architecture.mdx](../src/content/docs/reference/model-architecture.mdx)、[reading-list.mdx](../src/content/docs/reference/reading-list.mdx) — 參考頁，sidebar 手動列入；前者讀 `/assets/context.svg`。
-    - [404.mdx](../src/content/docs/404.mdx) — 找不到頁面時的 splash 模板，關閉搜尋索引。
-  - **content/i18n/**
-    - [en.json](../src/content/i18n/en.json) — 覆寫 Starlight 搜尋框標籤（"Search Tabula"）。載入：i18nLoader。
-- **public/** — 原樣複製進 `dist/`，只以靜態網址引用
-  - **assets/** — [atlas.svg](../public/assets/atlas.svg) 是 favicon 與品牌圖（Header）；[context.svg](../public/assets/context.svg) 是 model-architecture 的輸入輸出示意圖；[domain](../public/assets/domain.svg)、[statistics](../public/assets/statistics.svg)、[science](../public/assets/science.svg) 三張是舊分類卡的插圖，重構後保留為靜態素材，目前沒有元件引用。
-  - **demos/** — [batch-error.py](../public/demos/batch-error.py) 與 [cooling-context.py](../public/demos/cooling-context.py)：分別讀取 CSV，計算各批次及整體平均誤差、整理冷卻量預測所用的已標記與待預測資料列。兩者只需 Python 標準庫；產品頁以 `/demos/…` 連結下載，check-catalog 驗證 `source` 路徑存在，建置後由 check-demos.py 實際執行 `dist/demos/` 的副本。
+| 畫面上的位置 | 要怎麼改？ |
+| --- | --- |
+| 左上角品牌圖案與 `Tabula` | 圖案是 [atlas.svg](../public/assets/atlas.svg)，瀏覽器分頁也使用它。品牌文字在 [Header.astro](../src/components/Header.astro) 的 `class="brand"` 連結內。整站更名時，也改 [astro.config.mjs](../astro.config.mjs) 的 `title: 'Tabula'`；換圖檔路徑時，分別更新頁首的 `img src` 與設定裡的 `favicon`。全站配色變數集中在 [palette.css](../src/styles/palette.css)。歡迎頁另有自己的品牌：`Chi-SquareLab` 字樣、[chi-squarelab.svg](../public/assets/chi-squarelab.svg) 標記與頁面 `<title>` 都在 [index.astro](../src/pages/index.astro)。 |
+| 頂部橫列的名稱、順序與點擊位置 | 在 [Header.astro](../src/components/Header.astro) 找 `const links`。每列第一項是文字，第二項是網址；移動整列就能調整順序。`Overview` 與 `Collections` 兩列分別指向 `/overview/` 與 `/overview/#our-products`（路徑常數 `overviewPath` 來自 [legacy-bookmarks.ts](../src/navigation/legacy-bookmarks.ts)）。改名稱時也要更新同檔產生區段名稱的 `currentSection()` 與 `isOverview` 判斷，讓底線仍會標出所在區段。若更換目錄落點，同步更新 `syncOverviewNavigation()` 與下方點擊處理裡的錨點。歡迎頁頂部另有自己的導覽（Research news、Mission、GitHub、Tutorials），直接改 [index.astro](../src/pages/index.astro)。 |
+| 左側 `Overview`、`Collections`、`Reference` 三列 | 在 [astro.config.mjs](../astro.config.mjs) 找 `sidebar: [`。第一項是 `{ slug: 'overview' }`，顯示名稱取自 [overview.mdx](../src/content/docs/overview.mdx) 的 `title`；`Collections` 與 `Reference` 改 `label` 可換顯示名稱，移動整項可換順序。**若改左側 `Collections` 的名字**，還要同步改 [Sidebar.astro](../src/components/Sidebar.astro) 的 `entry.label === 'Collections'`：這個判斷決定哪一列要放入產品分組。 |
+| `Collections` 下的 `Models`、`Tasks`、`Applications` | 改 [collection-groups.json](../src/data/collection-groups.json) 的 `label`；移動整筆就能換順序。Overview 產品目錄和側欄都會跟著更新。只想改顯示文字時，保留 `id`，因為產品用它指定所屬分組。要移動某項產品，改該[產品檔](../src/content/docs/products/)的 `collections`。 |
+| `Reference` 下的 `Model architecture`、`Reading list` | 選單預設讀取 [model-architecture.mdx](../src/content/docs/reference/model-architecture.mdx) 和 [reading-list.mdx](../src/content/docs/reference/reading-list.mdx) 的 `title`。只想改選單文字，可在 [astro.config.mjs](../astro.config.mjs) 的 `Reference.items` 裡寫 `{ slug: 'reference/reading-list', label: 'Resources' }`。要換順序就交換 `items` 裡的兩項。Overview 底部同名卡片的文字另外寫在 [overview.mdx](../src/content/docs/overview.mdx)。 |
+| 書本圖示、展開箭頭、縮排與選中顏色 | 在 [Sidebar.astro](../src/components/Sidebar.astro) 找 `open-book`（書本）或 `right-caret`（箭頭），`size` 控制大小。檔尾的 `<style>` 控制外觀：`.sidebar-branch` 管縮排與直線，`.caret` 管箭頭方向，`[aria-current]` 相關規則管選中樣式。 |
+| 想讓 `Reference` 一開始收起來 | 在 [astro.config.mjs](../astro.config.mjs) 的 `label: 'Reference'` 旁加入 `collapsed: true`。預覽時先從 Overview（`/overview/`）看預設狀態；進入組內文章後，側欄會展開所在組。 |
 
-## 走讀一：一個產品頁如何生成
+例如，想把 **Models** 改成 **Model tools**：打開 [collection-groups.json](../src/data/collection-groups.json)，把 `"label": "Models"` 改為 `"label": "Model tools"`，保留 `"id": "models"`。執行 `npm run dev`，看 Overview 的 **Our products**，再展開左側 **Collections**；兩處都應顯示新名稱，原有產品仍在同一組。
 
-1. 維護者依[範本](templates/product.mdx)寫 [products/batch-error.mdx](../src/content/docs/products/batch-error.mdx)；frontmatter 的自訂欄位由 [content.config.ts](../src/content.config.ts) 的擴充 schema 驗證，`collections: [tasks, applications]` 是歸屬的唯一登記處，有效 ID 來自 [collection-groups.json](../src/data/collection-groups.json)。
-2. `npm run build` 先跑 [check-catalog.mjs](../scripts/check-catalog.mjs)：欄位齊全、兩個分組 ID 都在登記檔、`/demos/batch-error.py` 真的在 `public/`、`## Tutorial` 恰一個且有步驟。不通過就不建置。
-3. Astro 建 `products/batch-error/` 頁時，Starlight 用 [astro.config.mjs](../astro.config.mjs) 註冊的覆寫把正文交給 [DocContent.astro](../src/components/DocContent.astro)：開頭插入 [ProductDetails](../src/components/ProductDetails.astro)——它對照登記檔把所屬分組寫成純文字標籤，並把 `source` 轉成下載鈕。
-4. 建置時，[BatchErrorPlot.tsx](../src/components/BatchErrorPlot.tsx) 先產生滑桿和圖形的 HTML；`client:visible` 讓瀏覽器在圖表進入畫面時接上 React 互動。改外觀則看旁邊的 [BatchErrorPlot.css](../src/components/BatchErrorPlot.css)。
-5. 讀者在首頁 Overview「Our products」目錄（`#collections` 別名錨點）的 Tasks 與 Applications 兩組、以及側欄的對應分組都會看到 Batch Error，連到同一個 `/products/batch-error/`，網址的 `?group=tasks` 或 `?group=applications` 讓側欄知道應標示哪個入口。直接開啟沒有分組參數的產品頁時，選用該產品在目錄中的第一組；舊網址 `/collections/statistics/` 由 [collections/[id].astro](../src/pages/collections/%5Bid%5D.astro) 轉到 `/#collections`。
-6. CI（[pages.yml](../.github/workflows/pages.yml)）建置後跑 [check-demos.py](../scripts/check-demos.py)：用頁面圍欄裡的輸入執行 `dist/demos/batch-error.py`，輸出 JSON 必須等於頁面上的預期輸出，才部署 `dist/`。
+## 新增一篇普通文章
 
-## 走讀二：一份文章資料如何同時產生網頁與 Notebook
+假設要新增一頁「資料切分」，網址是 `/reference/data-splitting/`：
 
-1. [legacy-articles.ts](../src/data/legacy-articles.ts) 定義 quickstart 與三篇案例的文字、程式碼與來源；頁面與 Notebook 都只讀這一份。
-2. examples/ 三頁匯入 [LegacyArticle.astro](../src/components/LegacyArticle.astro)，傳入 ID 就渲染出整篇文章與自帶目錄；Quickstart 紀錄則由首頁 [index.mdx](../src/content/docs/index.mdx) 直接內嵌（摺疊區塊，章節沿用 `s0`／`s1`／`s2`／`sources` 錨點）。
-3. 同一批 key 驅動 [`[id].ipynb.ts`](../src/pages/downloads/%5Bid%5D.ipynb.ts)：`getStaticPaths` 為每篇文章生成 `/downloads/<id>.ipynb`，Quickstart 的下載鈕在首頁 Overview，其餘在文章頁。新增一筆資料後，建置會多產生一個 Notebook；要讓讀者也能從網頁閱讀，還要新增對應的 MDX，將該 ID 傳給 LegacyArticle。
-4. 舊原型用 `/#domain/section` 形式的首頁書籤；[Header.astro](../src/components/Header.astro) 的瀏覽器腳本匯入 [legacy-bookmarks.ts](../src/navigation/legacy-bookmarks.ts) 做純查詢對照，把帶 section 的分類書籤轉到 `/examples/<id>/#section`。例如 `/#science/s2` 會開啟 `/examples/science/#s2`；`/#science` 則直接落在首頁 `#collections` 別名錨點；`/#quickstart/s1` 會展開首頁 Quickstart 並落在 `#s1`，`/#quickstart` 本身就是首頁實際區段、不轉址。舊頁面網址 `/quickstart/` 另由 [quickstart.astro](../src/pages/quickstart.astro) 轉到 Overview。
+1. 在 [src/content/docs/reference/](../src/content/docs/reference/) 建立 `data-splitting.mdx`，寫入：
 
-## 生成目錄（不入版控）
+   ```mdx
+   ---
+   title: Data splitting
+   description: How to separate training and test data.
+   ---
 
-`node_modules/` 是 npm 套件；`dist/` 是 `astro build` 的產物，也是 CI 部署到 GitHub Pages 的內容；`.astro/` 是 Astro 產生的型別與快取；`.ruff_cache/` 是本機 Python 工具快取。
+   Keep test rows separate before fitting the model.
+
+   ## Example
+
+   To evaluate predictions for a new batch, hold out an entire batch.
+   ```
+
+2. 在專案根目錄執行 `npm run dev`。打開終端機顯示的預覽網址，再前往 `/reference/data-splitting/`。
+3. 選擇讀者從哪裡進入這頁。要列在左側 **Reference** 選單，就打開 [astro.config.mjs](../astro.config.mjs)，找到 `label: 'Reference'`，在它的 `items` 清單加上 `{ slug: 'reference/data-splitting' }`。如果只想從閱讀清單進入，在 [reading-list.mdx](../src/content/docs/reference/reading-list.mdx) 加上 `[Data splitting](/reference/data-splitting/)` 即可。
+
+## 新增一個產品
+
+1. 複製 [產品範本](templates/product.mdx) 到 [src/content/docs/products/](../src/content/docs/products/)，例如命名為 `batch-summary.mdx`。對應網址是 `/products/batch-summary/`。
+2. 填好名稱、簡介、維護者、來源、版本等共通欄位（`delivery` 與 `access` 為選填）。`collections` 填所有適用的分組，例如 `collections: [models]`；凡包含 `models` 時，須一併填寫 `model:` 區塊（`domain`、`tasks`、`baseModel` 必填，`weights`、`paper` 選填）。分組判準與欄位協議見[產品規範](product-protocol.md)。
+3. 在同一檔的 `## Tutorial` 寫明：如何取得產品、準備什麼輸入、如何操作、怎麼讀結果。可參照現有的 [Batch Error](../src/content/docs/products/batch-error.mdx)。
+4. 執行 `npm run build` 檢查產品資料與網站建置。預覽時，從 Overview 和左側選單各點一次新產品。兩處都會依 `collections` 自動列出產品，不用另加選單項目。
+
+## 新增一則研究動態
+
+若要調整實作：欄位驗證與排序在 [welcome-content.ts](../src/data/welcome-content.ts)，頭條與清單在 [ResearchNews.astro](../src/components/welcome/ResearchNews.astro)，封面與預設插圖在 [NewsCover.astro](../src/components/welcome/NewsCover.astro)。
+
+歡迎頁的 **Our research news** 讀 [research-news.json](../src/data/research-news.json)。記錄依日期新到舊排序，最新一筆成為頭條，其餘列入下方清單（若陣列為空，畫面顯示預留的預覽）。
+
+1. 若該則頭條要配專屬封面圖，先把圖片放進 `public/assets/news/`（例如 `public/assets/news/my-paper.png`，支援 PNG、JPG、WebP、SVG）。
+2. 打開 [research-news.json](../src/data/research-news.json)，在陣列加一筆（`cover` 為選填）：
+
+   ```json
+   [
+     {
+       "date": "2026-11-25",
+       "kind": "Paper",
+       "title": "Paper or project title",
+       "summary": "One or two sentences about the update.",
+       "url": "https://example.com/paper",
+       "cover": {
+         "src": "/assets/news/my-paper.png",
+         "alt": "Brief description of the figure",
+         "caption": "Fig. 1 · Method overview",
+         "fit": "contain"
+       }
+     }
+   ]
+   ```
+
+3. 欄位約定：`date` 用 `YYYY-MM-DD`；`kind` 是短標籤，例如 `Paper`、`Code`、`Tutorial`；`title` 與 `summary` 用英文；`url` 連到這則成果的論文、儲存庫或教學頁（外部 `https://` 或站內 `/` 開頭路徑）。`cover` 選填：`src` 可填站內 `/assets/...` 路徑或外部 `https://` 網址，`alt` 為圖片替代文字，`caption`（選填）顯示於封面下方，`fit`（選填，預設 `"cover"` 填滿，論文架構圖或白底圖表可改 `"contain"` 完整顯示不裁切）；省略 `cover` 時會顯示預設幾何示意圖。依研究章程，加入前先核對成果歸屬與公開權限。
+4. 記錄按日期新到舊排序，最新一筆顯示為主打。欄位缺漏、格式錯誤或站內 `cover.src` 找不到檔案都會在建置時報錯；先跑 `npm run build` 驗證，預覽時開 `/` 檢查畫面。
+
+## 修改已有 Notebook 的案例
+
+以「新批次評估」為例：改**網頁標題或簡介**，開 [batch-generalization.mdx](../src/content/docs/reference/batch-generalization.mdx)；改**實驗步驟、Python 程式碼或 Notebook 開頭的標題**，開 [notebook-articles.ts](../src/data/notebook-articles.ts)，找 `science`。若要同時更名網頁和 Notebook，兩處的 `title` 都要改。
+
+這篇案例的公開網址仍是 `/examples/science/`，由 `.mdx` 開頭的 `slug: examples/science` 指定。只改內容時保留 `slug`，舊書籤就能繼續使用。建置後可從案例頁下載 Notebook 核對修改；下次建置會從原始檔重新產生下載檔。

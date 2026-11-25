@@ -1,8 +1,11 @@
 ---
-// Published collection URLs are bookmarks. The directory now lives on the homepage.
+import { legacyCollectionIds, overviewPath } from '../../navigation/legacy-bookmarks';
+
 export function getStaticPaths() {
-  return ['domain', 'statistics', 'science'].map(id => ({ params: { id } }));
+  return legacyCollectionIds.map(id => ({ params: { id } }));
 }
+
+const collectionsTarget = `${overviewPath}#collections`;
 ---
 <!doctype html>
 <html lang="en">
@@ -10,8 +13,8 @@ export function getStaticPaths() {
     <meta charset="utf-8" />
     <title>Collections | Tabula</title>
     <meta name="robots" content="noindex" />
-    <meta http-equiv="refresh" content="0;url=/#collections" />
-    <link rel="canonical" href={new URL('/', Astro.site)} />
+    <meta http-equiv="refresh" content={`0;url=${collectionsTarget}`} />
+    <link rel="canonical" href={new URL(overviewPath, Astro.site)} />
   </head>
-  <body><p>Browse products in <a href="/#collections">Collections</a>.</p></body>
+  <body><p>Browse products in <a href={collectionsTarget}>Collections</a>.</p></body>
 </html>

@@ -5,6 +5,7 @@ import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.ast
 import SidebarRestorePoint from '@astrojs/starlight/components/SidebarRestorePoint.astro';
 import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro';
 import { getProductGroups } from '../data/product-groups';
+import { overviewPath } from '../navigation/legacy-bookmarks';
 
 const { sidebar, id: currentId } = Astro.locals.starlightRoute;
 const groups = await getProductGroups();
@@ -24,15 +25,16 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
     {sidebar.map((entry) => {
       if (entry.type === 'link') {
         const { class: linkClass, ...attrs } = entry.attrs;
+        const isOverview = entry.href === overviewPath;
         return (
-          <li class:list={{ 'overview-item': entry.href === '/' }}>
+          <li class:list={{ 'overview-item': isOverview }}>
             <a
               href={entry.href}
               aria-current={entry.isCurrent ? 'page' : undefined}
               class:list={['sidebar-link', 'section-label', linkClass]}
               {...attrs}
             >
-              {entry.href === '/' && <Icon name="open-book" size="16px" />}
+              {isOverview && <Icon name="open-book" size="16px" />}
               {entry.label}
               {entry.badge && <Badge text={entry.badge.text} variant={entry.badge.variant} class={entry.badge.class} />}
             </a>
@@ -229,8 +231,8 @@ function hasCurrentLink(entries: SidebarEntry[]): boolean {
   }
 
   .sidebar-link[aria-current='page'] {
-    color: var(--sl-color-text-invert);
-    background-color: var(--sl-color-text-accent);
+    color: var(--tabula-button-text);
+    background-color: var(--tabula-fill-accent);
     font-weight: 600;
   }
 

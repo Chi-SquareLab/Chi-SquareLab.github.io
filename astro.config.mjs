@@ -25,7 +25,7 @@ export default defineConfig({
         Sidebar: './src/components/Sidebar.astro',
       },
       sidebar: [
-        { label: 'Overview', link: '/' },
+        { slug: 'overview' },
         // Sidebar.astro fills this section from the products' collection memberships.
         { label: 'Collections', collapsed: true, items: [] },
         { label: 'Reference', items: [{ slug: 'reference/model-architecture' }, { slug: 'reference/reading-list' }] },

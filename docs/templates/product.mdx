@@ -2,16 +2,25 @@
 title: "Replace with the product name"
 description: "Who uses this product, with which input, to obtain what result?"
 demo: false # Set true for an instructional demo.
-collections: [] # List all applicable group IDs from the collection registry, src/data/collection-groups.json (models, tasks, applications).
+collections: [] # List all applicable group IDs from src/data/collection-groups.json (models, tasks, applications).
 maintainer: "Replace with the responsible team or individual"
-source: "Replace with the official product URL"
-delivery: [] # For example: Python package, web app, model weights.
+source: "Replace with the official GitHub or product URL"
 status: "Choose Preview, Released, or Archived"
 release: "Version or release date covered by this tutorial"
-access: "License or access terms"
+# Optional common fields (leave out if covered by GitHub / Hugging Face):
+# delivery: ["Python package", "Model weights"]
+# access: "Public download; no sign-in required"
+# Required when collections includes `models`:
+model:
+  domain: "Replace with target domain (e.g. General, Materials, Biomedical)"
+  tasks: ["Classification", "Regression"]
+  baseModel: "Replace with model origin (e.g. From scratch, TabPFN v2, TabICL)"
+  # Optional external links:
+  # weights: "https://huggingface.co/Chi-SquareLab/..."
+  # paper: "https://arxiv.org/abs/..."
 ---
 
-Describe the supported task and its limits. Explain how the product serves each selected collection. Replace all prompts with verified information before listing the product.
+Introduce what this model or tool does, when to use it, and its scope. Replace all prompts with verified information before listing the product.
 
 ## Tutorial
 

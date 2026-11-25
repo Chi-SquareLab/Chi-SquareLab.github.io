@@ -1,0 +1,97 @@
+---
+import ForwardDiagram from './ForwardDiagram.astro';
+---
+
+<div class="hero-stage" data-forward-stage>
+  <div class="stage-atmosphere" aria-hidden="true"></div>
+
+  <div class="stage-canvas" aria-hidden="true">
+    <ForwardDiagram />
+  </div>
+
+  <!-- Interwoven foreground hero content -->
+  <div class="stage-foreground shell">
+    <div class="hero-copy">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style>
+  .hero-stage {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    min-height: clamp(34rem, calc(86svh - 4.5rem), 48rem);
+    overflow: hidden;
+    border-bottom: 1px solid var(--rule);
+    background-color: var(--paper);
+  }
+
+  .stage-atmosphere {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background-image:
+      radial-gradient(640px circle at var(--hx, 70%) var(--hy, 46%), rgb(var(--brand-brick-rgb) / 0.075), transparent 62%),
+      radial-gradient(520px circle at 84% 72%, rgb(var(--brand-cyan-rgb) / 0.075), transparent 58%),
+      linear-gradient(90deg, rgb(var(--brand-graphite-rgb) / 0.038) 1px, transparent 1px),
+      linear-gradient(rgb(var(--brand-graphite-rgb) / 0.038) 1px, transparent 1px);
+    background-size: auto, auto, 32px 32px, 32px 32px;
+    background-position: center;
+  }
+
+  .stage-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .stage-foreground {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    padding-block: clamp(3rem, 7vh, 5.25rem);
+    pointer-events: none;
+  }
+
+  .hero-copy {
+    max-width: min(32.5rem, 41%);
+    pointer-events: auto;
+  }
+
+  /* ---- Responsive Adaptation ---- */
+  @media (max-width: 62rem) {
+    .hero-stage {
+      min-height: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .stage-foreground {
+      order: 1;
+      padding-top: clamp(2.25rem, 5.5vw, 3.25rem);
+      padding-bottom: 1.5rem;
+    }
+
+    .hero-copy {
+      max-width: 40rem;
+    }
+
+    .stage-canvas {
+      order: 2;
+      position: relative;
+      inset: auto;
+      z-index: 1;
+      padding: 0 clamp(1.15rem, 4.8vw, 4.5rem) clamp(2rem, 5vw, 3rem);
+    }
+  }
+</style>

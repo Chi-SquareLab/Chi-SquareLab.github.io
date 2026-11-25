@@ -1,25 +1,25 @@
 ---
 import Search from '@astrojs/starlight/components/Search.astro';
 import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro';
+import { overviewPath } from '../navigation/legacy-bookmarks';
 
 const links = [
-  ['Overview', '/'],
-  ['Collections', '/#our-products'],
+  ['Overview', overviewPath],
+  ['Collections', `${overviewPath}#our-products`],
   ['Reference', '/reference/model-architecture/'],
 ];
 
 function currentSection(path: string) {
   if (/^\/(products|collections)\//.test(path)) return 'Collections';
   if (/^\/(examples|reference)\//.test(path)) return 'Reference';
-  return path === '/' ? 'Overview' : undefined;
 }
 
-const path = Astro.url.pathname;
-const section = currentSection(path);
+const isOverview = Astro.locals.starlightRoute.id === 'overview';
+const section = isOverview ? 'Overview' : currentSection(Astro.url.pathname);
 ---
 <div class="topbar flex items-center">
   <a class="brand" href="/"><img src="/assets/atlas.svg" alt="" width="32" height="32"/>Tabula</a>
-  <nav aria-label="Main navigation" data-root-nav={path === '/' ? '' : undefined}>
+  <nav aria-label="Main navigation" data-overview-nav={isOverview ? '' : undefined}>
     {links.map(([label, href]) => (
       <a href={href} aria-current={label === section ? 'location' : undefined}>{label}</a>
     ))}
@@ -27,19 +27,18 @@ const section = currentSection(path);
   <div class="tools"><Search /><span class="appearance"><ThemeSelect /></span></div>
 </div>
 <script>
-  import { legacyBookmarkTarget } from '../navigation/legacy-bookmarks';
+  import { overviewPath } from '../navigation/legacy-bookmarks';
 
   let wasExpanded: boolean | undefined;
 
-  function syncHomeNavigation() {
-    if (location.pathname !== '/') return;
-    const [route, part] = location.hash.slice(1).split('/');
-    const inDirectory = route === 'collections' || route === 'our-products';
-    const navLinks = document.querySelectorAll<HTMLAnchorElement>('nav[data-root-nav] a');
-    for (const link of navLinks) {
+  function syncOverviewNavigation() {
+    const nav = document.querySelector('nav[data-overview-nav]');
+    if (!nav) return;
+    const inDirectory = location.hash === '#collections' || location.hash === '#our-products';
+    for (const link of nav.querySelectorAll<HTMLAnchorElement>('a')) {
       const active = inDirectory
         ? link.hash === '#our-products'
-        : link.pathname === '/' && !link.hash;
+        : link.pathname === overviewPath && !link.hash;
       if (active) link.setAttribute('aria-current', 'location');
       else link.removeAttribute('aria-current');
     }
@@ -59,15 +58,13 @@ const section = currentSection(path);
         overview.setAttribute('aria-current', 'page');
       }
     }
-    const target = legacyBookmarkTarget(route, part);
-    if (target) location.replace(target);
   }
-  syncHomeNavigation();
-  window.addEventListener('hashchange', syncHomeNavigation);
-  window.addEventListener('pageshow', syncHomeNavigation);
+  syncOverviewNavigation();
+  window.addEventListener('hashchange', syncOverviewNavigation);
+  window.addEventListener('pageshow', syncOverviewNavigation);
   // A repeated click on the current fragment does not emit hashchange.
-  document.querySelector('nav[data-root-nav] a[href="/#our-products"]')?.addEventListener('click', () => {
-    if (location.hash === '#our-products') syncHomeNavigation();
+  document.querySelector(`nav[data-overview-nav] a[href="${overviewPath}#our-products"]`)?.addEventListener('click', () => {
+    if (location.hash === '#our-products') syncOverviewNavigation();
   });
 </script>
 <style>

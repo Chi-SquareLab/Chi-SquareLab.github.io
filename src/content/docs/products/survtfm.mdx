@@ -1,0 +1,104 @@
+---
+title: "SurvTFM"
+description: "Frozen 27.6M-parameter in-context tabular survival foundation model and local workspace for continuous-time survival prediction, bias-corrected population inference, evaluation, and study design."
+collections: [models]
+maintainer: "Chi-SquareLab"
+source: "https://github.com/TAO-Joker/survival-tfm-system"
+status: Released
+release: "v0.6.3"
+model:
+  domain: "Survival & Reliability"
+  tasks: ["Survival prediction", "Hazard & RMST", "Population inference"]
+  baseModel: "TabICL (v2.1.1)"
+---
+
+**SurvTFM** is a frozen continuous-time tabular survival foundation model (27,593,401 parameters) paired with a local research workspace (**SurvTFM Agent**) for applied time-to-event and reliability analysis. Given labeled support rows (observed times and event indicators) and baseline query covariates, the model produces four frozen views across 64 finite log-time hazard bins plus one tail bin, averaging their survival curves over the declared follow-up window.
+
+Alongside individual survival prediction, the local workspace provides separate statistical layers for continuous-time bias-corrected population inference (`paper_inference`), IPCW model evaluation, prespecified two-group comparisons, industrial reliability qualification, and study design.
+
+**Scientific boundaries.** Per prediction call, the local adapter accepts 2–256 support rows, 1–64 query rows, and up to 256 raw features using support-only preprocessing. All outputs remain inside the declared finite follow-up horizon with no unobserved tail extrapolation. Competing risks, left truncation, longitudinal covariate histories, causal treatment-effect identification, simultaneous confidence bands, and clinical deployment are outside `v0.6.3`.
+
+## Tutorial
+
+### Get access
+
+Clone the repository and install the Python package with model dependencies (Python 3.10+):
+
+```sh
+git clone https://github.com/TAO-Joker/survival-tfm-system.git
+cd survival-tfm-system
+python -m venv .venv
+# Activate your virtual environment, then install:
+pip install -e ".[model]"
+```
+
+Obtain the verified frozen checkpoint `SurvTFM.pt` through an authorized distribution channel (no automatic weight download is performed; the backend verifies its full SHA256 digest before deserialization) and point `SURVIVAL_TFM_CHECKPOINT` to the file:
+
+```sh
+# Linux / macOS
+export SURVIVAL_TFM_CHECKPOINT=/absolute/path/to/SurvTFM.pt
+
+# Windows PowerShell
+$env:SURVIVAL_TFM_CHECKPOINT='C:/path/to/SurvTFM.pt'
+```
+
+- **Windows desktop edition:** Download `SurvTFMAgent-Setup-x64.exe` from the [GitHub Releases](https://github.com/TAO-Joker/survival-tfm-system/releases/latest) page and place `SurvTFM.pt` in `models/SurvTFM.pt` (or select it inside Prediction studio).
+- **Without neural weights:** Install with `pip install -e .` to run imported survival curves, reliability applications, statistical inference, evaluation, and study design without `SurvTFM.pt`.
+
+### Prepare an input
+
+The workspace opens with a public measured steel-fatigue example (separate support, query, and reference splits) that you can replay immediately. To run on your own tabular data in **Prediction studio**, prepare two CSV files with identical baseline feature columns and disjoint patient IDs:
+
+1. **Support CSV** (labeled context rows with observed time `U` and event indicator `event` in `{0, 1}`):
+
+```csv
+patient_id,U,event,x0,x1
+s1,120,1,0.42,18.5
+s2,240,0,-0.15,21.0
+s3,310,1,0.88,16.2
+```
+
+2. **Query CSV** (unlabeled target rows; outcome columns such as `U`, `event`, or `T` are rejected):
+
+```csv
+patient_id,x0,x1
+q1,0.35,19.1
+q2,-0.22,22.4
+```
+
+Numeric features and blank missing cells are accepted directly; categorical columns use fixed zero-based integer encodings shared between support and query. The support set must contain observed events and sufficient follow-up for the declared horizon.
+
+### Run the task
+
+Start the local research workspace and REST API:
+
+```sh
+survtfm serve
+```
+
+Open `http://127.0.0.1:8765` for the interactive workspace (or `http://127.0.0.1:8765/docs` for the OpenAPI documentation). In **Prediction studio**, declare the horizon and time unit, click **Prepare CSV request** to inspect counts and schema checks, then click **Run local TFM** to compute frozen survival curves.
+
+You can also inspect survival functionals programmatically without neural weights using the `survival_tfm` Python package:
+
+```python
+import numpy as np
+from survival_tfm import SurvivalDistribution
+from survival_tfm.forecast import forecast
+
+dist = SurvivalDistribution.from_rates(
+    np.linspace(0, 365, 17),
+    np.full((8, 16), 0.002),
+    [f"patient-{i}" for i in range(8)],
+    unit="days",
+)
+answers = forecast(dist, times=[30, 180, 365], survived_to=30)
+```
+
+For marginal population bias correction (`survival_tfm.paper_inference.paper_inference`), pass a validated piecewise-constant physical-time working forecast together with independent analysis outcomes and explicitly confirmed design assumptions (`DESIGN_FIELDS`).
+
+### Interpret the output
+
+- **Individual curves & summaries:** Prediction studio reports continuous survival $S(t)$, cumulative event risk $1 - S(t)$, hazard, density, conditional survival given $T > s$, quantiles, and restricted mean survival time (RMST). If a quantile (such as the median) is not reached within the finite prediction window, it is reported as unavailable rather than extrapolated.
+- **RMST integration rules:** Default RMST cards preserve the shared-node trapezoidal rule; exact piecewise-exponential RMST is labeled separately. Always compare models under the same integration rule.
+- **Prediction vs. statistical inference:** Cohort explorer averages are model plug-in summaries, whereas **Population inference** applies the separate continuous-time bias-correction layer with joint nuisance-aware standard errors and pointwise logit intervals. Corrected population curves are signed estimates and are not clipped back into $[0, 1]$ or transferred to individual patients.
+- **Exports:** Save standalone SVGs, prediction-only curve CSVs, or full workspace/evaluation JSON bundles from **Results** (outcome sidecars remain separate from prediction CSVs).

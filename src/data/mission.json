@@ -1,0 +1,31 @@
+{
+  "sectionTitle": "Our mission & open community",
+  "statement": {
+    "lead": "Make the reasoning behind every prediction",
+    "emphasis": "visible."
+  },
+  "paragraphs": [
+    "When a tabular foundation model moves from one experiment to the next, which labeled examples should guide it, and which observations must stay held out until evaluation? Those choices decide whether a prediction holds up outside the benchmark.",
+    "We started Tabula as an open community commons for inspecting those choices directly. By pairing concise tutorials with transparent evaluation workflows, we welcome statisticians, machine learning researchers, and domain scientists to compare methods, challenge assumptions, and bring new scientific problems to the table."
+  ],
+  "pillars": [
+    {
+      "id": "contextual-generalization",
+      "kicker": "Contextual generalization",
+      "title": "How models travel across tables",
+      "summary": "Studying which context rows guide a tabular foundation model when schemas shift, sample sizes shrink, or new experimental batches arrive."
+    },
+    {
+      "id": "calibrated-uncertainty",
+      "kicker": "Distribution-free uncertainty",
+      "title": "Intervals grounded in calibration",
+      "summary": "Separating model forward predictions from held-out calibration residuals so coverage claims remain inspectable under real evaluation splits."
+    },
+    {
+      "id": "open-scholarship",
+      "kicker": "Open scientific community",
+      "title": "Shared methods, open scrutiny",
+      "summary": "Building worked examples and field notes that let statisticians, model builders, and domain scientists test each other’s assumptions on common ground."
+    }
+  ]
+}

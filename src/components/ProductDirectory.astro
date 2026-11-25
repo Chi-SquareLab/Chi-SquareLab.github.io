@@ -10,12 +10,24 @@ const groups = await getProductGroups();
       <h3 id={`tabula-directory-${id}`}>{label}</h3>
       {products.length ? (
         <ul role="list">
-          {products.map((product) => (
-            <li>
-              <a href={product.href}>{product.data.title}</a>
-              {product.data.description && <p>{product.data.description}</p>}
-            </li>
-          ))}
+          {products.map((product) => {
+            const model = product.data.model;
+            return (
+              <li>
+                <a href={product.href}>{product.data.title}</a>
+                {model && (
+                  <p class="tabula-directory__meta">
+                    <span>{model.domain}</span>
+                    <span aria-hidden="true">·</span>
+                    <span>{model.baseModel}</span>
+                    <span aria-hidden="true">·</span>
+                    <span>{model.tasks.join(', ')}</span>
+                  </p>
+                )}
+                {product.data.description && <p>{product.data.description}</p>}
+              </li>
+            );
+          })}
         </ul>
       ) : <p>No products listed yet.</p>}
     </section>

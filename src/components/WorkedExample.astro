@@ -1,14 +1,14 @@
 ---
 import AnchorHeading from '@astrojs/starlight/components/AnchorHeading.astro';
 import { Code, LinkButton } from '@astrojs/starlight/components';
-import { legacyArticles, type LegacyArticleData, type LegacyArticleId } from '../data/legacy-articles.ts';
+import { notebookArticles, type NotebookArticle, type NotebookArticleId } from '../data/notebook-articles.ts';
 
 interface Props {
-  id: Exclude<LegacyArticleId, 'quickstart'>;
+  id: Exclude<NotebookArticleId, 'quickstart'>;
 }
 
 const { id } = Astro.props;
-const article: LegacyArticleData = legacyArticles[id];
+const article: NotebookArticle = notebookArticles[id];
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const filename = `tabula-${id}.ipynb`;
 // Keep the section fragments used by the prototype's links.

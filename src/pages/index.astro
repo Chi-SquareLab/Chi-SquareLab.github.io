@@ -1,0 +1,104 @@
+---
+import ForwardFigure from '../components/welcome/ForwardFigure.astro';
+import MissionSection from '../components/welcome/MissionSection.astro';
+import ResearchNews from '../components/welcome/ResearchNews.astro';
+import '../styles/welcome.css';
+
+const github = 'https://github.com/Chi-SquareLab';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chi-SquareLab · Tabula</title>
+    <meta
+      name="description"
+      content="Research news and field notes from Chi-SquareLab on tabular foundation models, statistical inference, and scientific applications."
+    />
+    <link rel="canonical" href={new URL('/', Astro.site)} />
+    <link rel="icon" href="/assets/chi-squarelab.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <div class="masthead-wrap">
+      <div class="scroll-progress" data-scroll-progress aria-hidden="true"></div>
+      <header class="masthead shell">
+        <a class="wordmark" href="/" aria-label="Chi-SquareLab home">
+          <img src="/assets/chi-squarelab.svg" width="32" height="32" alt="" />
+          <span class="wordmark-name">Chi-SquareLab</span>
+          <span class="wordmark-sub" aria-hidden="true">/ Tabula</span>
+        </a>
+        <nav aria-label="Main navigation">
+          <a href="#news">Research news</a>
+          <a href="#mission">Mission</a>
+          <a class="org-link" href={github}>GitHub <span aria-hidden="true">↗</span></a>
+          <a class="nav-enter" href="/overview/">Tutorials <span aria-hidden="true">→</span></a>
+        </nav>
+      </header>
+    </div>
+
+    <main id="main">
+      <section aria-labelledby="welcome-title">
+        <ForwardFigure>
+          <h1 id="welcome-title" data-hero-reveal>Chi-Square<wbr /><em>Lab</em></h1>
+          <p class="thesis" data-hero-reveal>
+            Learning from tables.<br />Accounting for uncertainty.
+          </p>
+          <p class="deck" data-hero-reveal>
+            <strong>Tabula</strong> is our open field guide to tabular foundation models—studying how
+            in-context predictions generalize across datasets and carry calibrated uncertainty.
+          </p>
+          <div class="hero-actions" data-hero-reveal>
+            <a class="primary" href="/overview/">
+              <span>Enter the tutorials</span>
+              <span class="cta-arrow" aria-hidden="true">→</span>
+            </a>
+            <a class="secondary" href={github}>
+              <span>Chi-SquareLab on GitHub</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </ForwardFigure>
+      </section>
+
+      <div class="shell content-flow">
+        <ResearchNews />
+        <MissionSection />
+      </div>
+    </main>
+
+    <footer class="site-footer shell">
+      <div class="footer-brand">
+        <span>Chi-SquareLab <b aria-hidden="true">/</b> Tabula</span>
+        <span class="footer-note">Tabular foundation models · Statistical &amp; scientific inference</span>
+      </div>
+      <div class="footer-links">
+        <a href="/overview/">Tutorials</a>
+        <a href={github}>GitHub ↗</a>
+        <a href="#main">Back to top ↑</a>
+      </div>
+    </footer>
+
+    <script>
+      import { welcomeBookmarkTarget } from '../navigation/legacy-bookmarks';
+      import { initWelcomeMotion } from '../scripts/welcome-motion';
+
+      function followBookmark() {
+        const target = welcomeBookmarkTarget(location.hash);
+        if (target) location.replace(target);
+      }
+
+      followBookmark();
+      window.addEventListener('hashchange', followBookmark);
+      initWelcomeMotion();
+    </script>
+  </body>
+</html>

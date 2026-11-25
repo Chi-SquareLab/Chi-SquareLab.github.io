@@ -1,0 +1,25 @@
+/* Unified Chi-SquareLab / Tabula color palette shared by the welcome page and Starlight docs. */
+:root {
+  --brand-crimson: #a02337;      /* 理大紅 — 品牌主色、核心內容 */
+  --brand-burgundy: #701828;     /* 深勃艮第紅 — 深色區塊、封面 */
+  --brand-brick: #b8624d;        /* 建築紅磚色 — 次級強調、裝飾 */
+  --brand-graphite: #24262b;     /* 石墨黑 — 正文、深色背景 */
+  --brand-gray: #58595b;         /* 理大灰 — 次級文字、標註 */
+  --brand-stone: #e6e1de;        /* 暖石灰 — 邊框、分割線 */
+  --brand-ivory: #f9f7f4;        /* 象牙白 — 頁面背景 */
+  --brand-cyan: #316b78;         /* 深青藍 — 技術元素、對照組 */
+  --brand-sage: #56796b;         /* 鼠尾草綠 — 輔助數據、正向結果 */
+  --brand-gold: #c3a16a;         /* 典雅金 — 成就、特殊標記 */
+
+  /* RGB channels for alpha washes, hairlines, and subtle glows */
+  --brand-crimson-rgb: 160 35 55;
+  --brand-burgundy-rgb: 112 24 40;
+  --brand-brick-rgb: 184 98 77;
+  --brand-graphite-rgb: 36 38 43;
+  --brand-gray-rgb: 88 89 91;
+  --brand-stone-rgb: 230 225 222;
+  --brand-ivory-rgb: 249 247 244;
+  --brand-cyan-rgb: 49 107 120;
+  --brand-sage-rgb: 86 121 107;
+  --brand-gold-rgb: 195 161 106;
+}

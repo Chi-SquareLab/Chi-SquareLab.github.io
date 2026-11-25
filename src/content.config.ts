@@ -3,8 +3,20 @@ import { z } from 'astro/zod';
 import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders';
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema';
 
+const nonEmpty = z.string().trim().min(1);
+const httpUrl = z.url({ protocol: /^https?$/ });
+
+const modelMetaSchema = z.object({
+  domain: nonEmpty,
+  tasks: z.array(nonEmpty).min(1),
+  baseModel: nonEmpty,
+  weights: httpUrl.optional(),
+  paper: httpUrl.optional(),
+});
+
 // Only product pages use these fields. Catalog-wide requirements (including
-// valid memberships and an in-page tutorial) are checked before each build.
+// valid memberships, collection-specific metadata, and an in-page tutorial)
+// are checked before each build by scripts/check-catalog.mjs.
 export const collections = {
   i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
   docs: defineCollection({
@@ -19,6 +31,7 @@ export const collections = {
         release: z.string().optional(),
         access: z.string().optional(),
         demo: z.boolean().optional(),
+        model: modelMetaSchema.optional(),
       }),
     }),
   }),

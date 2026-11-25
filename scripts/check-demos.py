@@ -1,4 +1,4 @@
-"""Run the two published teaching scripts with their documented inputs after building."""
+"""Run the published teaching script with its documented input after building."""
 
 import json
 import re
@@ -37,5 +37,5 @@ def verify(demo):
 
 
 if __name__ == "__main__":
-    for product in ("cooling-context", "batch-error"):
+    for product in ("batch-error",):
         verify(product)

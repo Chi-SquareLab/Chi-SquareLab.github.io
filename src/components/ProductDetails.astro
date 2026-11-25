@@ -8,35 +8,93 @@ interface Props {
 }
 
 const { data } = Astro.props;
+const model = data.model;
 const memberIds = new Set(data.collections);
 const memberships = collectionGroups.filter(({ id }) => memberIds.has(id));
+const showMemberships = model ? memberships.length > 1 : memberships.length > 0;
+
+function parseHttpUrl(value?: string): URL | undefined {
+  if (!value) return undefined;
+  try {
+    const url = new URL(value.trim());
+    return /^https?:$/i.test(url.protocol) ? url : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function isHost(url: URL, domain: string): boolean {
+  const host = url.hostname.toLowerCase();
+  return host === domain || host.endsWith(`.${domain}`);
+}
+
+function shortPath(url: URL): string {
+  const clean = url.pathname.replace(/^\/+|\/+$/g, '');
+  return clean || url.hostname;
+}
 
 function getSourceLink(value?: string) {
   if (!value) return undefined;
+  const trimmed = value.trim();
   try {
-    const url = new URL(value, Astro.url);
-    if (value.startsWith('/') && !value.startsWith('//') && url.origin === Astro.url.origin) {
+    const url = new URL(trimmed, Astro.url);
+    if (trimmed.startsWith('/') && !trimmed.startsWith('//') && url.origin === Astro.url.origin) {
       return {
+        kind: 'local' as const,
         href: url.pathname + url.search + url.hash,
         label: url.pathname.toLowerCase().endsWith('.ipynb') ? 'Download notebook' : 'Download source',
+        sub: url.pathname.split('/').pop() ?? trimmed,
         icon: 'download' as const,
         download: true,
       };
     }
-    if (/^https?:\/\//i.test(value)) {
-      return { href: url.href, label: 'Open source', icon: 'external' as const };
+    const http = parseHttpUrl(trimmed);
+    if (http) {
+      const github = isHost(http, 'github.com');
+      const huggingface = isHost(http, 'huggingface.co');
+      return {
+        kind: github ? ('github' as const) : huggingface ? ('huggingface' as const) : ('external' as const),
+        href: http.href,
+        label: github ? 'GitHub' : huggingface ? 'Hugging Face' : 'Open source',
+        sub: shortPath(http),
+        icon: 'external' as const,
+        download: false,
+      };
     }
   } catch {
     return undefined;
   }
 }
 
-const source = getSourceLink(data.source?.trim());
+const source = getSourceLink(data.source);
+const weightsUrl = parseHttpUrl(model?.weights);
+const paperUrl = parseHttpUrl(model?.paper);
+
+const githubHref = source?.kind === 'github' ? source.href : undefined;
+const githubSub = source?.kind === 'github' ? source.sub : 'Not linked yet';
+
+const hfHref =
+  weightsUrl && isHost(weightsUrl, 'huggingface.co')
+    ? weightsUrl.href
+    : source?.kind === 'huggingface'
+      ? source.href
+      : undefined;
+const hfSub =
+  weightsUrl && isHost(weightsUrl, 'huggingface.co')
+    ? shortPath(weightsUrl)
+    : source?.kind === 'huggingface'
+      ? source.sub
+      : 'Not linked yet';
+
+const otherWeights =
+  weightsUrl && !isHost(weightsUrl, 'huggingface.co')
+    ? { href: weightsUrl.href, sub: shortPath(weightsUrl) }
+    : undefined;
 ---
 
 <section class="tabula-product not-content" aria-labelledby="tabula-product-title">
   <div class="tabula-product__heading">
-    <h2 id="tabula-product-title">Product details</h2>
+    <h2 id="tabula-product-title">{model ? 'Model card' : 'Product details'}</h2>
     <div class="tabula-tags">
       {data.demo && <span class="tabula-tag" data-tone="demo">Demo</span>}
       {data.status && (
@@ -47,27 +105,169 @@ const source = getSourceLink(data.source?.trim());
     </div>
   </div>
 
-  <dl class="tabula-product__facts">
-    {data.maintainer && <div><dt>Maintainer</dt><dd>{data.maintainer}</dd></div>}
-    {data.release && <div><dt>Release</dt><dd>{data.release}</dd></div>}
-    {data.delivery?.length ? <div><dt>Delivery</dt><dd>{data.delivery.join(', ')}</dd></div> : null}
-    {data.access && <div><dt>Access</dt><dd>{data.access}</dd></div>}
-    {memberships.length > 0 && (
-      <div class="tabula-product__memberships">
-        <dt>Collections</dt>
+  {model ? (
+    <dl class="tabula-product__facts">
+      <div>
+        <dt>Domain</dt>
+        <dd>{model.domain}</dd>
+      </div>
+      <div>
+        <dt>Base model</dt>
+        <dd>{model.baseModel}</dd>
+      </div>
+      {data.maintainer && (
+        <div>
+          <dt>Maintainer</dt>
+          <dd>{data.maintainer}</dd>
+        </div>
+      )}
+      {data.release && (
+        <div>
+          <dt>Release</dt>
+          <dd>{data.release}</dd>
+        </div>
+      )}
+      <div class="tabula-product__span">
+        <dt>Tasks</dt>
         <dd>
           <ul class="tabula-tags" role="list">
-            {memberships.map(({ label }) => <li class="tabula-tag">{label}</li>)}
+            {model.tasks.map((task) => <li class="tabula-tag" data-tone="task">{task}</li>)}
           </ul>
         </dd>
       </div>
-    )}
-  </dl>
+      {showMemberships && (
+        <div class="tabula-product__memberships">
+          <dt>Collections</dt>
+          <dd>
+            <ul class="tabula-tags" role="list">
+              {memberships.map(({ label }) => <li class="tabula-tag">{label}</li>)}
+            </ul>
+          </dd>
+        </div>
+      )}
+    </dl>
+  ) : (
+    <dl class="tabula-product__facts">
+      {data.maintainer && <div><dt>Maintainer</dt><dd>{data.maintainer}</dd></div>}
+      {data.release && <div><dt>Release</dt><dd>{data.release}</dd></div>}
+      {data.delivery?.length ? <div><dt>Delivery</dt><dd>{data.delivery.join(', ')}</dd></div> : null}
+      {data.access && <div><dt>Access</dt><dd>{data.access}</dd></div>}
+      {showMemberships && (
+        <div class="tabula-product__memberships">
+          <dt>Collections</dt>
+          <dd>
+            <ul class="tabula-tags" role="list">
+              {memberships.map(({ label }) => <li class="tabula-tag">{label}</li>)}
+            </ul>
+          </dd>
+        </div>
+      )}
+    </dl>
+  )}
 
   <div class="tabula-product__actions">
-    {source && (
-      <a class="tabula-button tabula-button--primary" href={source.href} download={source.download}>
-        {source.label} <Icon name={source.icon} />
+    {model ? (
+      <details class="tabula-menu" data-access-menu>
+        <summary class="tabula-button tabula-button--primary tabula-menu__trigger">
+          <span>Get model</span>
+          <svg class="tabula-menu__caret" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+            <path d="M4.25 6.25 8 10l3.75-3.75" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </summary>
+        <div class="tabula-menu__panel" role="group" aria-label="Model links">
+          {githubHref ? (
+            <a class="tabula-menu__item" href={githubHref} target="_blank" rel="noopener noreferrer">
+              <span class="tabula-menu__logo tabula-menu__logo--github" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                  <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.78 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.8 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+                </svg>
+              </span>
+              <span class="tabula-menu__text">
+                <span class="tabula-menu__label">GitHub</span>
+                <span class="tabula-menu__sub">{githubSub}</span>
+              </span>
+              <Icon name="external" class="tabula-menu__arrow" />
+            </a>
+          ) : (
+            <span class="tabula-menu__item tabula-menu__item--muted" aria-disabled="true">
+              <span class="tabula-menu__logo tabula-menu__logo--github" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                  <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.78 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.8 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .31.21.67.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+                </svg>
+              </span>
+              <span class="tabula-menu__text">
+                <span class="tabula-menu__label">GitHub</span>
+                <span class="tabula-menu__sub">{githubSub}</span>
+              </span>
+            </span>
+          )}
+
+          {hfHref ? (
+            <a class="tabula-menu__item" href={hfHref} target="_blank" rel="noopener noreferrer">
+              <span class="tabula-menu__logo tabula-menu__logo--hf" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18">
+                  <circle cx="12" cy="11.5" r="8.5" fill="#f0c351" stroke="#24262b" stroke-width="1.35" />
+                  <circle cx="9.1" cy="10.1" r="1.15" fill="#24262b" />
+                  <circle cx="14.9" cy="10.1" r="1.15" fill="#24262b" />
+                  <circle cx="7.4" cy="12.2" r="1.15" fill="#b8624d" opacity="0.55" />
+                  <circle cx="16.6" cy="12.2" r="1.15" fill="#b8624d" opacity="0.55" />
+                  <path d="M9.1 13.5c.75 1.35 1.75 1.95 2.9 1.95s2.15-.6 2.9-1.95" fill="none" stroke="#24262b" stroke-width="1.35" stroke-linecap="round" />
+                  <path d="M5.4 16.4c-.9-.9-1.4-2.1-.6-2.9.6-.6 1.5-.1 2.1.7.4-.6 1.1-.6 1.5 0 .4.6.2 1.6-.5 2.4-.7.8-1.8.6-2.5-.2Z" fill="#f0c351" stroke="#24262b" stroke-width="1.2" stroke-linejoin="round" />
+                  <path d="M18.6 16.4c.9-.9 1.4-2.1.6-2.9-.6-.6-1.5-.1-2.1.7-.4-.6-1.1-.6-1.5 0-.4.6-.2 1.6.5 2.4.7.8 1.8.6 2.5-.2Z" fill="#f0c351" stroke="#24262b" stroke-width="1.2" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <span class="tabula-menu__text">
+                <span class="tabula-menu__label">Hugging Face</span>
+                <span class="tabula-menu__sub">{hfSub}</span>
+              </span>
+              <Icon name="external" class="tabula-menu__arrow" />
+            </a>
+          ) : (
+            <span class="tabula-menu__item tabula-menu__item--muted" aria-disabled="true">
+              <span class="tabula-menu__logo tabula-menu__logo--hf" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18">
+                  <circle cx="12" cy="11.5" r="8.5" fill="#f0c351" stroke="#24262b" stroke-width="1.35" />
+                  <circle cx="9.1" cy="10.1" r="1.15" fill="#24262b" />
+                  <circle cx="14.9" cy="10.1" r="1.15" fill="#24262b" />
+                  <circle cx="7.4" cy="12.2" r="1.15" fill="#b8624d" opacity="0.55" />
+                  <circle cx="16.6" cy="12.2" r="1.15" fill="#b8624d" opacity="0.55" />
+                  <path d="M9.1 13.5c.75 1.35 1.75 1.95 2.9 1.95s2.15-.6 2.9-1.95" fill="none" stroke="#24262b" stroke-width="1.35" stroke-linecap="round" />
+                  <path d="M5.4 16.4c-.9-.9-1.4-2.1-.6-2.9.6-.6 1.5-.1 2.1.7.4-.6 1.1-.6 1.5 0 .4.6.2 1.6-.5 2.4-.7.8-1.8.6-2.5-.2Z" fill="#f0c351" stroke="#24262b" stroke-width="1.2" stroke-linejoin="round" />
+                  <path d="M18.6 16.4c.9-.9 1.4-2.1.6-2.9-.6-.6-1.5-.1-2.1.7-.4-.6-1.1-.6-1.5 0-.4.6-.2 1.6.5 2.4.7.8 1.8.6 2.5-.2Z" fill="#f0c351" stroke="#24262b" stroke-width="1.2" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <span class="tabula-menu__text">
+                <span class="tabula-menu__label">Hugging Face</span>
+                <span class="tabula-menu__sub">{hfSub}</span>
+              </span>
+            </span>
+          )}
+
+          {otherWeights && (
+            <a class="tabula-menu__item" href={otherWeights.href} target="_blank" rel="noopener noreferrer">
+              <span class="tabula-menu__logo" aria-hidden="true">
+                <Icon name="external" />
+              </span>
+              <span class="tabula-menu__text">
+                <span class="tabula-menu__label">Model weights</span>
+                <span class="tabula-menu__sub">{otherWeights.sub}</span>
+              </span>
+              <Icon name="external" class="tabula-menu__arrow" />
+            </a>
+          )}
+        </div>
+      </details>
+    ) : (
+      source && (
+        <a class="tabula-button tabula-button--primary" href={source.href} download={source.download || undefined}>
+          {source.label} <Icon name={source.icon} />
+        </a>
+      )
+    )}
+
+    {paperUrl && (
+      <a class="tabula-button tabula-button--secondary" href={paperUrl.href} target="_blank" rel="noopener noreferrer">
+        Paper <Icon name="external" />
       </a>
     )}
     <a class="tabula-button tabula-button--secondary" href="#tutorial">
@@ -75,3 +275,24 @@ const source = getSourceLink(data.source?.trim());
     </a>
   </div>
 </section>
+
+<script>
+  const menus = document.querySelectorAll<HTMLDetailsElement>('[data-access-menu]');
+  if (menus.length > 0) {
+    document.addEventListener('click', (event) => {
+      const target = event.target as Node | null;
+      for (const menu of menus) {
+        if (menu.open && target && !menu.contains(target)) menu.open = false;
+      }
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      for (const menu of menus) {
+        if (menu.open) {
+          menu.open = false;
+          menu.querySelector('summary')?.focus();
+        }
+      }
+    });
+  }
+</script>

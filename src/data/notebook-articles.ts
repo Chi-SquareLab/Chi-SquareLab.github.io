@@ -1,4 +1,4 @@
-export interface LegacyArticleData {
+export interface NotebookArticle {
   readonly title: string;
   readonly intro: string;
   readonly sections: readonly {
@@ -12,7 +12,7 @@ export interface LegacyArticleData {
   }[];
 }
 
-// Ported from app.js and tutorials.js. Pages and notebooks use the same records.
+// Overview and the downloadable Iris notebook share this prediction code.
 export const quickstartCode = `from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from tabpfn import TabPFNClassifier
@@ -26,7 +26,7 @@ model = TabPFNClassifier()
 model.fit(X_train, y_train)
 probabilities = model.predict_proba(X_test)`;
 
-export const legacyArticles = {
+export const notebookArticles = {
   quickstart: {
     title: "Quickstart",
     intro:
@@ -270,6 +270,6 @@ print(f"Mean batch MAE, median: {np.mean(baseline_errors):.3f}")
       },
     ],
   },
-} satisfies Record<string, LegacyArticleData>;
+} satisfies Record<string, NotebookArticle>;
 
-export type LegacyArticleId = keyof typeof legacyArticles;
+export type NotebookArticleId = keyof typeof notebookArticles;

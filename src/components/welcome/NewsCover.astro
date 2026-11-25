@@ -1,0 +1,185 @@
+---
+import type { NewsStory } from '../../data/welcome-content';
+
+interface Props {
+  story?: NewsStory;
+}
+
+const { story } = Astro.props;
+const cover = story?.cover;
+---
+
+{story && cover ? (
+  <figure class:list={['lead-plate', `fit-${cover.fit}`]}>
+    <a class="cover-frame" href={story.url} aria-label={`Open ${story.title}`}>
+      <img
+        src={cover.src}
+        alt={cover.alt}
+        loading="eager"
+        decoding="async"
+      />
+    </a>
+    <figcaption class="plate-caption">
+      <span>{cover.caption ?? story.kind}</span>
+      <span>{story.date}</span>
+    </figcaption>
+  </figure>
+) : (
+  <div class="lead-plate" aria-hidden="true">
+    <svg viewBox="0 0 320 220" focusable="false">
+      <defs>
+        <linearGradient id="news-band" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#56796b" stop-opacity="0.08" />
+          <stop offset="50%" stop-color="#56796b" stop-opacity="0.26" />
+          <stop offset="100%" stop-color="#56796b" stop-opacity="0.08" />
+        </linearGradient>
+      </defs>
+      <g class="plate-grid">
+        <path d="M24 36H296M24 78H296M24 120H296M24 162H296M24 196H296" />
+        <path d="M56 24V198M124 24V198M192 24V198M260 24V198" />
+      </g>
+      <path
+        class="plate-envelope"
+        fill="url(#news-band)"
+        d="M36 146 C92 128, 134 86, 186 78 C228 72, 260 88, 286 68 L286 122 C258 138, 224 126, 184 134 C132 144, 92 172, 36 178 Z"
+      />
+      <path
+        class="plate-curve"
+        d="M36 162 C92 149, 134 114, 186 106 C228 99, 260 112, 286 94"
+      />
+      <g class="plate-points">
+        <circle cx="72" cy="152" r="3" />
+        <circle cx="118" cy="130" r="3" />
+        <circle cx="154" cy="112" r="3" />
+        <circle cx="222" cy="105" r="3" />
+        <circle cx="264" cy="100" r="3" />
+      </g>
+      <g class="plate-focus">
+        <line x1="186" y1="78" x2="186" y2="134" />
+        <line x1="179" y1="78" x2="193" y2="78" />
+        <line x1="179" y1="134" x2="193" y2="134" />
+        <circle class="focus-halo" cx="186" cy="106" r="10" />
+        <circle class="focus-core" cx="186" cy="106" r="4.2" />
+      </g>
+    </svg>
+    <div class="plate-caption">
+      <span>{story ? 'Featured Dispatch' : 'Editorial Preview'}</span>
+      <span>{story ? story.date : 'Configurable Cover'}</span>
+    </div>
+  </div>
+)}
+
+<style>
+  .lead-plate {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 0.72rem;
+    border: 1px solid var(--rule);
+    background: linear-gradient(160deg, #fcfbf9, var(--paper));
+    overflow: hidden;
+  }
+
+  .lead-plate svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    flex: 1;
+  }
+
+  .cover-frame {
+    display: block;
+    flex: 1;
+    aspect-ratio: 16 / 11;
+    overflow: hidden;
+    background: var(--paper-light);
+  }
+
+  .cover-frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .lead-plate.fit-contain .cover-frame {
+    padding: 0.75rem;
+  }
+
+  .lead-plate.fit-contain .cover-frame img {
+    object-fit: contain;
+  }
+
+  :global(.lead-story:hover) .cover-frame img {
+    transform: scale(1.03);
+  }
+
+  .plate-grid path {
+    fill: none;
+    stroke: rgb(var(--brand-graphite-rgb) / 0.08);
+    stroke-width: 1;
+  }
+
+  .plate-curve {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.9;
+    stroke-linecap: round;
+  }
+
+  .plate-points circle {
+    fill: var(--sage);
+    opacity: 0.85;
+  }
+
+  .plate-focus line {
+    stroke: var(--cyan);
+    stroke-width: 1.75;
+    stroke-linecap: round;
+  }
+
+  .focus-halo {
+    fill: rgb(var(--brand-crimson-rgb) / 0.16);
+    transform-origin: 186px 106px;
+    transition: transform 320ms ease;
+  }
+
+  :global(.lead-story:hover) .focus-halo {
+    transform: scale(1.28);
+  }
+
+  .focus-core {
+    fill: var(--crimson);
+  }
+
+  .plate-caption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.65rem 0.9rem;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font: 600 0.64rem / 1.3 var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 56rem) {
+    .lead-plate {
+      max-width: 24rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cover-frame img,
+    .focus-halo {
+      transition: none;
+    }
+    :global(.lead-story:hover) .cover-frame img {
+      transform: none;
+    }
+  }
+</style>

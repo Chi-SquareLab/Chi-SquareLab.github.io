@@ -21,6 +21,15 @@ for (const { id, label } of groups) {
 }
 const records = ids('products');
 const parser = unified().use(remarkParse);
+const isNonEmptyString = (value) => typeof value === 'string' && value.trim().length > 0;
+const isHttpUrl = (value) => {
+  if (!isNonEmptyString(value)) return false;
+  try {
+    return /^https?:$/.test(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+};
 
 for (const id of records) {
   const require = (ok, message) => { if (!ok) throw new Error(`products/${id}: ${message}`); };
@@ -29,21 +38,53 @@ for (const id of records) {
   const match = /^---\n([\s\S]*?)\n---(?:\n|$)/.exec(file);
   require(match, 'missing YAML frontmatter');
   const meta = parseYaml(match[1]);
-  for (const key of ['title', 'description', 'maintainer', 'source', 'release', 'access']) {
-    require(typeof meta[key] === 'string' && meta[key].trim(), `missing ${key}`);
+
+  // Common required product identity fields.
+  for (const key of ['title', 'description', 'maintainer', 'source', 'release']) {
+    require(isNonEmptyString(meta[key]), `missing ${key}`);
   }
   require(['Preview', 'Released', 'Archived'].includes(meta.status), 'unknown publication status');
-  require(Array.isArray(meta.delivery) && meta.delivery.length && meta.delivery.every(d => typeof d === 'string' && d.trim()), 'supply a delivery format');
+
+  // Optional common fields (validated when present).
+  if (meta.access !== undefined) {
+    require(isNonEmptyString(meta.access), 'access must be a non-empty string when provided');
+  }
+  if (meta.delivery !== undefined) {
+    require(
+      Array.isArray(meta.delivery) && meta.delivery.length && meta.delivery.every(isNonEmptyString),
+      'delivery must be a non-empty list of strings when provided',
+    );
+  }
+
   require(Array.isArray(meta.collections) && meta.collections.length, 'select at least one collection');
   require(meta.collections.every(c => categories.has(c)), 'unknown collection ID');
   require(new Set(meta.collections).size === meta.collections.length, 'duplicate collection ID');
+
   if (meta.source.startsWith('/')) {
     const publicDir = resolve(root, 'public');
-    const source = resolve(publicDir, '.' + meta.source);
-    require(source.startsWith(publicDir + sep) && statSync(source, { throwIfNoEntry: false })?.isFile(), 'local source file missing');
+    const source = resolve(publicDir, `.${meta.source}`);
+    require(source.startsWith(`${publicDir}${sep}`) && statSync(source, { throwIfNoEntry: false })?.isFile(), 'local source file missing');
   } else {
-    require(/^https?:\/\//.test(meta.source), 'source must be an HTTP(S) URL or public file path');
+    require(isHttpUrl(meta.source), 'source must be an HTTP(S) URL or public file path');
   }
+
+  // Collection-specific metadata protocol: models.
+  if (meta.collections.includes('models')) {
+    require(meta.model && typeof meta.model === 'object' && !Array.isArray(meta.model), 'models products require a model metadata block');
+    require(isNonEmptyString(meta.model.domain), 'model.domain is required for models products');
+    require(
+      Array.isArray(meta.model.tasks) && meta.model.tasks.length && meta.model.tasks.every(isNonEmptyString),
+      'model.tasks must be a non-empty list of strings',
+    );
+    require(isNonEmptyString(meta.model.baseModel), 'model.baseModel is required for models products');
+    if (meta.model.weights !== undefined) {
+      require(isHttpUrl(meta.model.weights), 'model.weights must be an HTTP(S) URL');
+    }
+    if (meta.model.paper !== undefined) {
+      require(isHttpUrl(meta.model.paper), 'model.paper must be an HTTP(S) URL');
+    }
+  }
+
   const blocks = parser.parse(file.slice(match[0].length)).children;
   const tutorials = blocks.filter(node => node.type === 'heading' && node.depth === 2 && node.children[0]?.value === 'Tutorial');
   require(tutorials.length === 1, 'include exactly one ## Tutorial on the product page');
